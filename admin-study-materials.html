@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<link rel="icon" href="assets/images/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="48x48" href="assets/images/favicon-48.png">
+<link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+
+<title>Study Materials Management</title>
+
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/responsive.css">
+<link rel="stylesheet" href="assets/css/project-ui.css">
+<link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+<link rel="stylesheet" href="AERON/css/aeron.css">
+
+<style>
+.wrap{
+    max-width:1000px;
+    margin:30px auto;
+    padding:18px;
+}
+
+.card{
+    background:#fff;
+    padding:20px;
+    border-radius:14px;
+    margin:15px 0;
+    box-shadow:0 4px 18px rgba(0,0,0,.08);
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:
+        repeat(auto-fit,minmax(220px,1fr));
+    gap:10px;
+}
+
+.grid input,
+.grid textarea,
+.grid select{
+    padding:11px;
+    width:100%;
+    box-sizing:border-box;
+    border:1px solid #ccc;
+    border-radius:8px;
+}
+
+.grid textarea{
+    min-height:90px;
+    resize:vertical;
+}
+
+.btn{
+    padding:10px 16px;
+    border:0;
+    border-radius:8px;
+    cursor:pointer;
+    margin:5px;
+}
+
+.msg{
+    font-weight:600;
+    margin-top:10px;
+}
+
+.file-info{
+    margin-top:8px;
+    font-size:14px;
+}
+
+.pdf-link{
+    display:inline-block;
+    margin-top:8px;
+    text-decoration:none;
+}
+</style>
+
+<script src="assets/js/backend-config.js"></script>
+<script src="assets/js/admin-guard.js"></script>
+
+</head>
+
+<body>
+
+<main class="wrap">
+
+<h2>📚 Study Materials Management</h2>
+
+<div class="card">
+
+    <div class="grid">
+
+        <input
+            id="materialId"
+            placeholder="Material ID (blank = new)"
+        >
+
+        <input
+            id="materialTitle"
+            placeholder="PDF title"
+        >
+
+        <input
+            id="materialCourse"
+            placeholder="Course (blank = all)"
+        >
+
+        <input
+            id="materialSubject"
+            placeholder="Subject"
+        >
+
+        <textarea
+            id="materialDescription"
+            placeholder="Description"
+        ></textarea>
+
+        <select id="materialStatus">
+            <option value="Draft">Draft</option>
+            <option value="Published">Published</option>
+        </select>
+
+        <input
+            id="materialFile"
+            type="file"
+            accept="application/pdf"
+        >
+
+    </div>
+
+    <div class="file-info">
+        📄 केवल PDF | अधिकतम 10 MB
+    </div>
+
+    <button
+        class="btn"
+        onclick="saveStudyMaterial()">
+        💾 Save
+    </button>
+
+    <button
+        class="btn"
+        onclick="clearStudyForm()">
+        🧹 Clear
+    </button>
+
+    <div id="msg" class="msg"></div>
+
+</div>
+
+<div id="list"></div>
+
+</main>
+
+<script>
+
+const API =
+    window.SURYA_DATABASE_API;
+
+const token =
+    sessionStorage.getItem("SURYA_ADMIN_TOKEN");
+
+const auth =
+    sessionStorage.getItem("SURYA_ADMIN_AUTH");
+
+if (auth !== "true" || !token) {
+    location.replace("admin-login.html");
+}
+
+const $ = id =>
+    document.getElementById(id);
+
+function esc(v) {
+    return String(v ?? "").replace(
+        /[&<>"']/g,
+        m => ({
+            "&":"&amp;",
+            "<":"&lt;",
+            ">":"&gt;",
+            '"':"&quot;",
+            "'":"&#039;"
+        }[m])
+    );
+}
+
+async function api(body) {
+
+    const r = await fetch(API, {
+        method:"POST",
+        headers:{
+            "Content-Type":
+                "text/plain;charset=utf-8"
+        },
+        body:JSON.stringify({
+            ...body,
+            token
+        })
+    });
+
+    const d = await r.json();
+
+    if (!d.success) {
+        throw new Error(
+            d.message || "Request failed."
+        );
+    }
+
+    return d;
+}
+
+function readFileAsDataURL(file) {
+
+    return new Promise((resolve,reject) => {
+
+        const reader =
+            new FileReader();
+
+        reader.onload = () =>
+            resolve(reader.result);
+
+        reader.onerror = () =>
+            reject(
+                new Error(
+                    "PDF could not be read."
+                )
+            );
+
+        reader.readAsDataURL(file);
+    });
+}
+
+async function saveStudyMaterial() {
+
+    const file =
+        $("materialFile").files[0];
+
+    const data = {
+
+        materialId:
+            $("materialId").value.trim(),
+
+        title:
+            $("materialTitle").value.trim(),
+
+        course:
+            $("materialCourse").value.trim(),
+
+        subject:
+            $("materialSubject").value.trim(),
+
+        description:
+            $("materialDescription").value.trim(),
+
+        status:
+            $("materialStatus").value,
+
+        pdf:null,
+        fileName:"",
+        mimeType:"application/pdf"
+    };
+
+    if (!data.title) {
+        $("msg").textContent =
+            "❌ PDF title required.";
+        return;
+    }
+
+    if (!data.materialId && !file) {
+        $("msg").textContent =
+            "❌ New material के लिए PDF चुनें.";
+        return;
+    }
+
+    if (file) {
+
+        if (
+            file.type !==
+            "application/pdf"
+        ) {
+            $("msg").textContent =
+                "❌ केवल PDF file allowed.";
+            return;
+        }
+
+        if (
+            file.size >
+            10 * 1024 * 1024
+        ) {
+            $("msg").textContent =
+                "❌ PDF 10 MB से बड़ी है.";
+            return;
+        }
+
+        try {
+            $("msg").textContent =
+                "⏳ PDF पढ़ी जा रही है...";
+
+            data.pdf =
+                await readFileAsDataURL(file);
+
+            data.fileName =
+                file.name;
+
+        } catch (e) {
+            $("msg").textContent =
+                "❌ " + e.message;
+            return;
+        }
+    }
+
+    try {
+
+        $("msg").textContent =
+            "⏳ Saving...";
+
+        const saveAction =
+            data.materialId
+                ? "studyUpdate"
+                : "studyUpload";
+
+        await api({
+            action: saveAction,
+            ...data
+        });
+
+        $("msg").textContent =
+            "✅ Study material saved.";
+
+        clearStudyForm();
+
+        await loadStudyMaterials();
+
+    } catch (e) {
+
+        $("msg").textContent =
+            "❌ " + e.message;
+    }
+}
+
+async function loadStudyMaterials() {
+
+    try {
+
+        const d = await api({
+            action:"studyAdminList"
+        });
+
+        const materials =
+            d.materials || [];
+
+        if (!materials.length) {
+
+            $("list").innerHTML =
+                '<div class="card">' +
+                '📚 अभी कोई Study Material नहीं है.' +
+                '</div>';
+
+            return;
+        }
+
+        $("list").innerHTML =
+            materials.map(m => {
+
+                const id =
+                    esc(m["Material ID"]);
+
+                const title =
+                    esc(m.Title);
+
+                const course =
+                    esc(m.Course || "All");
+
+                const subject =
+                    esc(m.Subject || "—");
+
+                const status =
+                    esc(m.Status);
+
+                const description =
+                    esc(m.Description || "");
+
+                const url =
+                    m["File ID"]
+                    ? "https://drive.google.com/file/d/" +
+                      encodeURIComponent(
+                          String(m["File ID"])
+                      ) +
+                      "/view"
+                    : "";
+
+                return `
+                <div class="card">
+
+                    <b>${id}</b>
+                    — <strong>${title}</strong>
+
+                    <br>
+                    🎓 Course: ${course}
+
+                    <br>
+                    📖 Subject: ${subject}
+
+                    <br>
+                    🔘 Status: ${status}
+
+                    ${description
+                        ? `<br>📝 ${description}`
+                        : ""}
+
+                    <br>
+
+                    ${
+                        url
+                        ? `<a
+                            class="pdf-link"
+                            href="${url}"
+                            target="_blank"
+                            rel="noopener">
+                            📖 Open PDF
+                           </a>`
+                        : ""
+                    }
+
+                    <br>
+
+                    <button
+                        class="btn"
+                        onclick='editStudyMaterial(${JSON.stringify(m)})'>
+                        ✏️ Edit
+                    </button>
+
+                    <button
+                        class="btn"
+                        onclick='deleteStudyMaterial(${JSON.stringify(id)})'>
+                        🗑️ Delete
+                    </button>
+
+                </div>
+                `;
+
+            }).join("");
+
+    } catch (e) {
+
+        $("list").innerHTML =
+            '<div class="card">❌ ' +
+            esc(e.message) +
+            '</div>';
+    }
+}
+
+function editStudyMaterial(m) {
+
+    $("materialId").value =
+        m["Material ID"] || "";
+
+    $("materialTitle").value =
+        m.Title || "";
+
+    $("materialCourse").value =
+        m.Course || "";
+
+    $("materialSubject").value =
+        m.Subject || "";
+
+    $("materialDescription").value =
+        m.Description || "";
+
+    $("materialStatus").value =
+        m.Status || "Draft";
+
+    $("materialFile").value = "";
+
+    $("msg").textContent =
+        "✏️ Edit mode: नया PDF चुनना optional है.";
+}
+
+async function deleteStudyMaterial(id) {
+
+    if (!confirm(
+        "क्या यह Study Material delete करना है?"
+    )) {
+        return;
+    }
+
+    try {
+
+        $("msg").textContent =
+            "⏳ Deleting...";
+
+        await api({
+            action:"studyDelete",
+            materialId:id
+        });
+
+        $("msg").textContent =
+            "✅ Deleted.";
+
+        await loadStudyMaterials();
+
+    } catch (e) {
+
+        $("msg").textContent =
+            "❌ " + e.message;
+    }
+}
+
+function clearStudyForm() {
+
+    $("materialId").value = "";
+    $("materialTitle").value = "";
+    $("materialCourse").value = "";
+    $("materialSubject").value = "";
+    $("materialDescription").value = "";
+    $("materialStatus").value = "Draft";
+    $("materialFile").value = "";
+}
+
+loadStudyMaterials();
+
+</script>
+
+</body>
+</html>

@@ -1739,3 +1739,110 @@ select:focus {
     border-radius: 0 !important;
     z-index: 5;
 }
+/* =========================================================
+   CIMP PHOTO FIX V1
+   Hero + Director image alignment
+   ========================================================= */
+
+/* HERO BACKGROUND — desktop पर face visible */
+.hero{
+    background-position:center 15% !important;
+}
+
+/* HERO PHOTO FRAME */
+.hero-right{
+    position:relative !important;
+}
+
+/* Institute photo */
+.hero-right > img:first-child{
+    display:block !important;
+    width:100% !important;
+    height:auto !important;
+    object-fit:cover !important;
+}
+
+/* Institute logo — same position logic on desktop/mobile */
+.hero-right .hero-logo{
+    position:absolute !important;
+    top:15px !important;
+    left:50% !important;
+    transform:translateX(-50%) !important;
+    width:110px !important;
+    height:auto !important;
+    object-fit:contain !important;
+    border-radius:0 !important;
+    z-index:10 !important;
+}
+
+/* DIRECTOR PHOTO — make the photo itself the positioning frame */
+.director-image{
+    position:relative !important;
+    flex:0 1 350px !important;
+    width:350px !important;
+    max-width:100% !important;
+    margin:0 auto !important;
+    text-align:center !important;
+}
+
+/* Director main photo */
+.director-image > img:first-child{
+    display:block !important;
+    width:100% !important;
+    max-width:none !important;
+    height:auto !important;
+    object-fit:cover !important;
+}
+
+/* Director logo — now positioned relative to the actual photo */
+.director-image .director-logo-overlay{
+    position:absolute !important;
+    top:12px !important;
+    right:12px !important;
+    width:68px !important;
+    height:68px !important;
+    object-fit:contain !important;
+    border-radius:0 !important;
+    box-shadow:none !important;
+    background:rgba(255,255,255,.88) !important;
+    padding:4px !important;
+    box-sizing:border-box !important;
+    z-index:10 !important;
+}
+
+/* Mobile */
+@media(max-width:768px){
+    .hero{
+        background-position:center center !important;
+    }
+
+    .hero-right .hero-logo{
+        top:10px !important;
+        width:90px !important;
+    }
+
+    .director-image{
+        flex:0 1 350px !important;
+        width:350px !important;
+        max-width:100% !important;
+    }
+
+    .director-image .director-logo-overlay{
+        top:10px !important;
+        right:10px !important;
+        width:56px !important;
+        height:56px !important;
+    }
+}
+
+
+/* HERO BACKGROUND PHOTO — DESKTOP FACE FIX */
+@media (min-width:769px){
+    .hero{
+        background-size:100% auto !important;
+        background-repeat:no-repeat !important;
+        background-position:center top !important;
+        background-color:#0d47a1 !important;
+    }
+}
+

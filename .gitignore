@@ -4,8 +4,9 @@
 # ============================================================
 /google-apps-script/
 
-# Local / editor files
+# Local / editor / backup files
 *.backup
 *.bak
 *.old
 *.before
+*.before-*
