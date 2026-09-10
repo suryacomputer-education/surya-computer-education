@@ -384,6 +384,34 @@ Security:
             </button>
 </div>
 
+        <!-- ==================================================
+             TRUSTED ADMIN DEVICES
+        ================================================== -->
+
+        <div class="admin-card">
+
+            <div class="admin-icon">
+                📱
+            </div>
+
+            <h3>
+                Trusted Admin Devices
+            </h3>
+
+            <p>
+                देखें कि किन browsers और devices को
+                Admin access के लिए trusted किया गया है।
+            </p>
+
+            <button
+                type="button"
+                class="admin-btn"
+                onclick="openTrustedDevicesPanel()"
+            >
+                Manage Trusted Devices
+            </button>
+
+        </div>
 
         <!-- ==================================================
              CONTACT MESSAGES
@@ -428,6 +456,44 @@ Security:
 
     </div>
 
+<!-- ==================================================
+     TRUSTED ADMIN DEVICES PANEL
+================================================== -->
+
+<div
+    id="trustedDevicesPanel"
+    style="
+        display:none;
+        max-width:700px;
+        margin:30px auto;
+        padding:24px;
+        background:var(--card-bg, #ffffff);
+        border-radius:16px;
+        box-shadow:0 8px 30px rgba(0,0,0,0.12);
+    "
+>
+
+    <h2>📱 Trusted Admin Devices</h2>
+
+    <p>
+        इन browsers/devices को Admin access के लिए trusted किया गया है।
+    </p>
+
+    <div id="trustedDevicesMessage">
+        ⏳ Loading trusted devices...
+    </div>
+
+    <div id="trustedDevicesList"></div>
+
+    <button
+        type="button"
+        class="admin-btn"
+        onclick="closeTrustedDevicesPanel()"
+    >
+        Close
+    </button>
+
+</div>
 
     <!-- ==================================================
          CHANGE PASSWORD PANEL
@@ -928,6 +994,320 @@ async function adminLogout() {
         "admin-login.html"
     );
 
+}
+
+/* ==================================================
+   TRUSTED ADMIN DEVICES
+================================================== */
+
+function openTrustedDevicesPanel() {
+
+    const panel =
+        document.getElementById(
+            "trustedDevicesPanel"
+        );
+
+    if (!panel) return;
+
+    panel.style.display = "block";
+
+    panel.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+
+    loadTrustedAdminDevices();
+}
+
+
+/* ==================================================
+   CLOSE TRUSTED DEVICES PANEL
+================================================== */
+
+function closeTrustedDevicesPanel() {
+
+    const panel =
+        document.getElementById(
+            "trustedDevicesPanel"
+        );
+
+    if (!panel) return;
+
+    panel.style.display = "none";
+}
+
+
+/* ==================================================
+   LOAD TRUSTED DEVICES
+================================================== */
+
+async function loadTrustedAdminDevices() {
+
+    const message =
+        document.getElementById(
+            "trustedDevicesMessage"
+        );
+
+    const list =
+        document.getElementById(
+            "trustedDevicesList"
+        );
+
+    if (!message || !list) return;
+
+    message.innerHTML =
+        "⏳ Loading trusted devices...";
+
+    list.innerHTML = "";
+
+    try {
+
+        const response =
+            await fetch(
+                SURYA_DATABASE_API,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "text/plain;charset=utf-8"
+                    },
+
+                    body: JSON.stringify({
+                        action:
+                            "getTrustedAdminDevices",
+
+                        token:
+                            SURYA_ADMIN_TOKEN
+                    })
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!data.success) {
+
+            message.innerHTML =
+                "❌ " +
+                (
+                    data.message ||
+                    "Unable to load trusted devices."
+                );
+
+            return;
+        }
+
+        message.innerHTML =
+            "Trusted devices: " +
+            data.count +
+            " / " +
+            data.maxDevices;
+
+        if (!data.devices || !data.devices.length) {
+
+            list.innerHTML =
+                "<p>No trusted Admin devices found.</p>";
+
+            return;
+        }
+
+        data.devices.forEach(
+            function(device, index) {
+
+                const card =
+                    document.createElement("div");
+
+                card.style.cssText =
+                    "margin:15px 0;" +
+                    "padding:16px;" +
+                    "border:1px solid #ddd;" +
+                    "border-radius:12px;";
+
+                card.innerHTML =
+                    "<strong>📱 Device " +
+                    (index + 1) +
+                    "</strong>" +
+
+                    "<p>🌐 Browser: " +
+                    escapeTrustedDeviceText(
+                        device.browser
+                    ) +
+                    "</p>" +
+
+                    "<p>💻 Platform: " +
+                    escapeTrustedDeviceText(
+                        device.platform
+                    ) +
+                    "</p>" +
+
+                    "<p>🗣️ Language: " +
+                    escapeTrustedDeviceText(
+                        device.language
+                    ) +
+                    "</p>" +
+
+                    "<p>🌍 Timezone: " +
+                    escapeTrustedDeviceText(
+                        device.timezone
+                    ) +
+                    "</p>" +
+
+                    "<p>🖥️ Screen: " +
+                    escapeTrustedDeviceText(
+                        device.screen
+                    ) +
+                    "</p>" +
+
+                    "<p>🕒 Last Seen: " +
+                    escapeTrustedDeviceText(
+                        device.lastSeen
+                    ) +
+                    "</p>" +
+
+                    "<button " +
+                    'type="button" ' +
+                    'class="admin-btn" ' +
+                    'data-device-key="' +
+                    escapeTrustedDeviceText(
+                        device.deviceKey
+                    ) +
+                    '">' +
+                    "Remove Device" +
+                    "</button>";
+
+                const button =
+                    card.querySelector(
+                        "button"
+                    );
+
+                button.addEventListener(
+                    "click",
+                    function() {
+
+                        removeTrustedAdminDeviceFromUI(
+                            device.deviceKey
+                        );
+
+                    }
+                );
+
+                list.appendChild(card);
+
+            }
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "TRUSTED DEVICES ERROR:",
+            error
+        );
+
+        message.innerHTML =
+            "❌ Unable to connect to backend.";
+
+    }
+}
+
+
+/* ==================================================
+   REMOVE TRUSTED DEVICE
+================================================== */
+
+async function removeTrustedAdminDeviceFromUI(
+    deviceKey
+) {
+
+    if (!deviceKey) return;
+
+    const confirmed =
+        window.confirm(
+            "क्या आप इस trusted Admin device को remove करना चाहते हैं?"
+        );
+
+    if (!confirmed) return;
+
+    try {
+
+        const response =
+            await fetch(
+                SURYA_DATABASE_API,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "text/plain;charset=utf-8"
+                    },
+
+                    body: JSON.stringify({
+                        action:
+                            "removeTrustedAdminDevice",
+
+                        token:
+                            SURYA_ADMIN_TOKEN,
+
+                        deviceKey:
+                            deviceKey
+                    })
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!data.success) {
+
+            alert(
+                data.message ||
+                "Device removal failed."
+            );
+
+            return;
+        }
+
+        alert(
+            "✅ Trusted Admin device removed."
+        );
+
+        loadTrustedAdminDevices();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "REMOVE DEVICE ERROR:",
+            error
+        );
+
+        alert(
+            "❌ Unable to connect to backend."
+        );
+
+    }
+}
+
+
+/* ==================================================
+   SAFE DEVICE TEXT
+================================================== */
+
+function escapeTrustedDeviceText(value) {
+
+    return String(
+        value == null
+            ? ""
+            : value
+    )
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 </script>
