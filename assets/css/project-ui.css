@@ -1,0 +1,56 @@
+/* ==================================================
+   SURYA CIMP — PROJECT UI / ACCESSIBILITY LAYER
+   Technical Advisor : AERON
+   ================================================== */
+:root { color-scheme: light; }
+html[data-theme="dark"] { color-scheme: dark; }
+html, body { transition: background-color .2s ease, color .2s ease; }
+html[data-theme="dark"] body { background:#0b1220 !important; color:#f8fafc !important; }
+html[data-theme="dark"] body * { border-color:#334155; }
+html[data-theme="dark"] .header, html[data-theme="dark"] .top-bar,
+html[data-theme="dark"] footer, html[data-theme="dark"] .footer,
+html[data-theme="dark"] .navbar { background:#0b1220 !important; color:#f8fafc !important; }
+html[data-theme="dark"] .navbar a { color:#e5e7eb !important; }
+html[data-theme="dark"] .admin-card, html[data-theme="dark"] .stat-card,
+html[data-theme="dark"] .certificate-card, html[data-theme="dark"] .application-card,
+html[data-theme="dark"] .admin-login-card, html[data-theme="dark"] .auth-box,
+html[data-theme="dark"] .card, html[data-theme="dark"] .course-card,
+html[data-theme="dark"] .about-text, html[data-theme="dark"] .contact-info,
+html[data-theme="dark"] .contact-form, html[data-theme="dark"] .quick-card,
+html[data-theme="dark"] .gallery-category, html[data-theme="dark"] .public-notice,
+html[data-theme="dark"] .notice-box, html[data-theme="dark"] #passwordPanel,
+html[data-theme="dark"] .panel, html[data-theme="dark"] .modal-content,
+html[data-theme="dark"] .form-card, html[data-theme="dark"] .table-card {
+  background:#172033 !important; color:#f8fafc !important;
+}
+html[data-theme="dark"] p, html[data-theme="dark"] label,
+html[data-theme="dark"] li, html[data-theme="dark"] small,
+html[data-theme="dark"] .muted { color:#cbd5e1 !important; }
+html[data-theme="dark"] h1, html[data-theme="dark"] h2,
+html[data-theme="dark"] h3, html[data-theme="dark"] h4,
+html[data-theme="dark"] h5, html[data-theme="dark"] h6 { color:#f8fafc !important; }
+html[data-theme="dark"] input, html[data-theme="dark"] select,
+html[data-theme="dark"] textarea, html[data-theme="dark"] option {
+  background:#0f172a !important; color:#f8fafc !important; border-color:#475569 !important;
+}
+html[data-theme="dark"] input::placeholder, html[data-theme="dark"] textarea::placeholder { color:#94a3b8 !important; }
+html[data-theme="dark"] table { color:#f8fafc !important; background:#172033 !important; }
+html[data-theme="dark"] th { background:#0f172a !important; color:#f8fafc !important; }
+html[data-theme="dark"] td { color:#e5e7eb !important; background:#172033 !important; }
+html[data-theme="dark"] .notice-badge, html[data-theme="dark"] .pill { background:#1e3a5f !important; color:#bfdbfe !important; }
+html[data-theme="dark"] a { color:#93c5fd; }
+html[data-theme="dark"] .btn, html[data-theme="dark"] button.primary { color:#fff !important; }
+html[data-theme="dark"] .error-message, html[data-theme="dark"] .success-message { color:inherit !important; }
+html[data-theme="light"] .cimp-theme-toggle { color:#222; }
+input, select, textarea { text-align:center; }
+body, input, select, textarea, button { -webkit-tap-highlight-color:transparent; }
+@media print { .cimp-theme-toggle { display:none !important; } }
+
+/* AERON/CIMP FINAL READABILITY FIX */
+.top-bar a,.top-bar a:visited{color:#fff!important;text-decoration:none!important}
+footer a,.footer a{color:#fff!important}
+.notice-box{color:#0f172a!important}
+.notice-box *{color:inherit!important}
+html[data-theme="dark"] .notice-box,html.dark-mode .notice-box,html.dark .notice-box,body.dark-mode .notice-box,body.dark .notice-box{background:#172033!important;color:#f8fafc!important}
+html[data-theme="dark"] .notice-box *,html.dark-mode .notice-box *,html.dark .notice-box *,body.dark-mode .notice-box *,body.dark .notice-box *{color:#f8fafc!important}
+html[data-theme="dark"] .top-bar a,html.dark-mode .top-bar a,html.dark .top-bar a,body.dark-mode .top-bar a,body.dark .top-bar a,html[data-theme="dark"] footer a,html.dark-mode footer a,html.dark footer a,body.dark-mode footer a,body.dark footer a{color:#e5e7eb!important}

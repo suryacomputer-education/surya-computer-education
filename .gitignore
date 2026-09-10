@@ -1,0 +1,11 @@
+# ============================================================
+# SURYA CIMP — PRIVATE BACKEND
+# NEVER COMMIT OR PUSH
+# ============================================================
+/google-apps-script/
+
+# Local / editor files
+*.backup
+*.bak
+*.old
+*.before

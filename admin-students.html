@@ -1,0 +1,1774 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : admin-students.html
+Version : v1.0.0
+Author  : Devendra Kumar
+Guide   : AERON
+Created : 09-08-2026
+==================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <!-- Favicon / app icons -->
+    <link rel="icon" href="assets/images/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="48x48" href="assets/images/favicon-48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+<title>Student Records | Surya Computer Of Education Center</title>
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <script src="assets/js/backend-config.js"></script>
+<script src="assets/js/data-manager.js"></script>
+    <script src="assets/js/data-migration.js"></script>
+
+    <link rel="stylesheet" href="assets/css/project-ui.css">
+
+    <script src="assets/js/admin-guard.js"></script>
+    <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+    <link rel="stylesheet" href="AERON/css/aeron.css">
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+
+<div class="top-bar">
+    📞 <a href="tel:+917084275870">7084275870</a> |
+    ✉️ <a href="mailto:sunilkumar5757kp@gmail.com">sunilkumar5757kp@gmail.com</a>
+</div>
+
+
+<!-- HEADER -->
+
+<header class="header">
+
+    <img src="assets/images/logo.png" alt="Logo" class="logo">
+
+    <div class="title">
+        <h1>SURYA COMPUTER OF EDUCATION CENTER</h1>
+        <p>Student Records</p>
+    </div>
+
+</header>
+
+
+<!-- NAVIGATION -->
+
+<nav class="navbar">
+
+    <a href="index.html">Home</a>
+    <a href="admin.html">Admin Dashboard</a>
+    <a href="admin-admissions.html">Admissions</a>
+    <a href="student-login.html">Student Login</a>
+
+</nav>
+
+
+<!-- STUDENT RECORDS -->
+
+<section class="admin-students">
+
+    <div class="admin-header">
+
+        <h2>👨‍🎓 Student Records</h2>
+
+        <p>
+            Manage all registered students
+        </p>
+
+    </div>
+
+
+    <!-- STUDENT SUMMARY -->
+
+    <div class="student-summary-grid">
+
+        <div class="admin-card">
+
+            <div class="admin-icon">👨‍🎓</div>
+
+            <h3>Total Students</h3>
+
+            <p id="totalStudents">
+                0
+            </p>
+
+        </div>
+
+
+        <div class="admin-card">
+
+            <div class="admin-icon">🟢</div>
+
+            <h3>Active Students</h3>
+
+            <p id="activeStudents">
+                0
+            </p>
+
+        </div>
+
+
+        <div class="admin-card">
+
+            <div class="admin-icon">✅</div>
+
+            <h3>Completed</h3>
+
+            <p id="completedStudents">
+                0
+            </p>
+
+        </div>
+
+
+        <div class="admin-card">
+
+            <div class="admin-icon">🚪</div>
+
+            <h3>Left / Inactive</h3>
+
+            <p id="inactiveStudents">
+                0
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- COURSE SUMMARY -->
+
+    <div class="course-summary">
+
+        <h3>📚 Course-wise Students</h3>
+
+        <div id="courseSummary">
+            <!-- Course counts will appear here -->
+        </div>
+
+    </div>
+
+
+    <!-- SEARCH -->
+
+    <div class="student-search">
+
+        <input
+            type="text"
+            id="studentSearch"
+            placeholder="🔍 Search Student ID, Name or Course"
+            oninput="searchStudents()"
+        >
+
+    </div>
+
+
+    <!-- STUDENT LIST -->
+
+    <div id="studentList">
+
+        <!-- Students will load here -->
+
+    </div>
+
+
+    <!-- NO STUDENTS -->
+
+    <div
+        id="noStudents"
+        class="no-student"
+        style="display:none;"
+    >
+
+        ❌ No student records found.
+
+    </div>
+
+
+    <!-- EDIT STUDENT FORM -->
+
+    <div
+        id="editStudentForm"
+        class="edit-student-form"
+        style="display:none;"
+    >
+
+        <h3>✏️ Edit Student</h3>
+
+
+        <input
+            type="text"
+            id="editStudentName"
+            placeholder="Student Name"
+        >
+
+
+        <input
+            type="text"
+            id="editFatherName"
+            placeholder="Father's Name"
+        >
+
+
+        <input
+            type="text"
+            id="editCourse"
+            placeholder="Course"
+        >
+
+
+        <input
+            type="tel"
+            id="editMobile"
+            placeholder="Mobile Number"
+        >
+
+
+        <select id="editStudentStatus">
+
+            <option value="Active">
+                Active
+            </option>
+
+            <option value="Completed">
+                Completed
+            </option>
+
+            <option value="Inactive">
+                Left / Inactive
+            </option>
+
+        </select>
+
+
+        <button
+            type="button"
+            onclick="saveStudentChanges()"
+        >
+            💾 Save Changes
+        </button>
+
+
+        <button
+            type="button"
+            onclick="cancelStudentEdit()"
+        >
+            ❌ Cancel
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- FOOTER -->
+
+<footer class="footer">
+
+    <div class="footer-content">
+
+        <h2>SURYA COMPUTER OF EDUCATION CENTER</h2>
+
+        <p>
+            Kamalpur, Chandauli, Uttar Pradesh
+        </p>
+
+        <p>
+            📞 <a href="tel:+917084275870">+91 7084275870</a>
+        </p>
+
+        <p>
+            © 2026 SURYA COMPUTER OF EDUCATION CENTER
+        </p>
+
+    </div>
+
+</footer>
+
+<script>
+
+/* ==================================================
+   SURYA STUDENT MANAGEMENT
+================================================== */
+
+let currentStudent = null;
+
+/* ==================================================
+   SURYA CENTRAL DATABASE API
+================================================== */
+
+const SURYA_DATABASE_API =
+    window.SURYA_DATABASE_API;
+
+
+/* ==================================================
+   LOAD STUDENTS FROM CENTRAL DATABASE
+================================================== */
+
+async function loadStudents() {
+
+    const adminToken =
+        sessionStorage.getItem(
+            "SURYA_ADMIN_TOKEN"
+        );
+
+    if (!adminToken) {
+
+        window.location.replace(
+            "admin-login.html"
+        );
+
+        return;
+
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                SURYA_DATABASE_API +
+                "?action=students&token=" +
+                encodeURIComponent(
+                    adminToken
+                )
+            );
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Students database request failed."
+            );
+
+        }
+
+        const data =
+            await response.json();
+
+        if (
+            !data.success ||
+            !Array.isArray(data.students)
+        ) {
+
+            throw new Error(
+                data.message ||
+                "Students could not be loaded."
+            );
+
+        }
+
+        /*
+           CENTRAL DATABASE → LOCAL PAGE FORMAT
+        */
+
+        const students =
+            data.students.map(
+                function(student) {
+
+                    return {
+
+                        id:
+                            student.id ||
+                            student["Student ID"] ||
+                            "",
+
+                        admissionId:
+                            student.admissionId ||
+                            student["Admission ID"] ||
+                            "",
+
+                        applicationId:
+                            student.applicationId ||
+                            student["Application ID"] ||
+                            "",
+
+                        name:
+                            student.name ||
+                            student["Student Name"] ||
+                            "",
+
+                        fatherName:
+                            student.fatherName ||
+                            student["Father Name"] ||
+                            "",
+
+                        motherName:
+                            student.motherName ||
+                            student["Mother Name"] ||
+                            "",
+
+                        dob:
+                            student.dob ||
+                            student["DOB"] ||
+                            "",
+
+                        mobile:
+                            student.mobile ||
+                            student["Mobile"] ||
+                            "",
+
+                        email:
+                            student.email ||
+                            student["Email"] ||
+                            "",
+
+                        address:
+                            student.address ||
+                            student["Address"] ||
+                            "",
+
+                        course:
+                            student.course ||
+                            student["Course"] ||
+                            "",
+
+                        photo:
+                            student.photo ||
+                            student["Photo"] ||
+                            "",
+
+                        signature:
+                            student.signature ||
+                            student["Signature"] ||
+                            "",
+
+                        admissionDate:
+                            student.admissionDate ||
+                            student["Admission Date"] ||
+                            "",
+
+                        status:
+                            student.status ||
+                            student["Status"] ||
+                            "Active",
+
+                        certificateId:
+                            student.certificateId ||
+                            student["Certificate ID"] ||
+                            ""
+
+                    };
+
+                }
+            );
+
+        /*
+           KEEP PAGE MODULE IN SYNC
+        */
+
+        updateSuryaModule(
+            "students",
+            students
+        );
+
+        /*
+           DISPLAY CENTRAL STUDENTS
+        */
+
+        updateStudentSummary(
+            students
+        );
+
+        updateCourseSummary(
+            students
+        );
+
+        displayStudents(
+            students
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "LOAD STUDENTS ERROR:",
+            error
+        );
+
+        alert(
+            "❌ Central Database से Students load नहीं हो सके.\n\n" +
+            error.message
+        );
+
+    }
+
+}
+
+/* ==================================================
+   STUDENT SUMMARY
+================================================== */
+
+function updateStudentSummary(students) {
+
+    const total =
+        students.length;
+
+
+    const active =
+        students.filter(function(student) {
+
+            return student.status === "Active";
+
+        }).length;
+
+
+    const completed =
+        students.filter(function(student) {
+
+            return student.status === "Completed";
+
+        }).length;
+
+
+    const inactive =
+        students.filter(function(student) {
+
+            return (
+                student.status === "Inactive" ||
+                student.status === "Left"
+            );
+
+        }).length;
+
+
+    const totalElement =
+        document.getElementById(
+            "totalStudents"
+        );
+
+
+    const activeElement =
+        document.getElementById(
+            "activeStudents"
+        );
+
+
+    const completedElement =
+        document.getElementById(
+            "completedStudents"
+        );
+
+
+    const inactiveElement =
+        document.getElementById(
+            "inactiveStudents"
+        );
+
+
+    if (totalElement) {
+
+        totalElement.textContent =
+            total;
+
+    }
+
+
+    if (activeElement) {
+
+        activeElement.textContent =
+            active;
+
+    }
+
+
+    if (completedElement) {
+
+        completedElement.textContent =
+            completed;
+
+    }
+
+
+    if (inactiveElement) {
+
+        inactiveElement.textContent =
+            inactive;
+
+    }
+
+}
+
+
+/* ==================================================
+   COURSE-WISE SUMMARY
+================================================== */
+
+function updateCourseSummary(students) {
+
+    const courseSummary =
+        document.getElementById(
+            "courseSummary"
+        );
+
+
+    if (!courseSummary) {
+        return;
+    }
+
+
+    courseSummary.innerHTML = "";
+
+
+    const courseCounts = {};
+
+
+    students.forEach(function(student) {
+
+        const course =
+            student.course || "Unknown";
+
+
+        if (!courseCounts[course]) {
+
+            courseCounts[course] = 0;
+
+        }
+
+
+        courseCounts[course]++;
+
+    });
+
+
+    const courses =
+        Object.keys(courseCounts);
+
+
+    if (courses.length === 0) {
+
+        courseSummary.innerHTML =
+            "<p>No students registered yet.</p>";
+
+        return;
+
+    }
+
+
+    courses.forEach(function(course) {
+
+        const box =
+            document.createElement("div");
+
+
+        box.className =
+            "course-summary-card";
+
+
+        box.innerHTML = `
+
+            <div>
+
+                <strong>
+                    ${course}
+                </strong>
+
+                <span>
+                    ${courseCounts[course]}
+                </span>
+
+            </div>
+
+        `;
+
+
+        courseSummary.appendChild(box);
+
+    });
+
+}
+
+
+/* ==================================================
+   DISPLAY STUDENTS
+================================================== */
+
+function displayStudents(students) {
+
+    const studentList =
+        document.getElementById(
+            "studentList"
+        );
+
+
+    const noStudents =
+        document.getElementById(
+            "noStudents"
+        );
+
+
+    studentList.innerHTML = "";
+
+
+    if (
+        !Array.isArray(students) ||
+        students.length === 0
+    ) {
+
+        noStudents.style.display =
+            "block";
+
+        return;
+
+    }
+
+
+    noStudents.style.display =
+        "none";
+
+
+    students.forEach(function(student) {
+
+        const card =
+            document.createElement("div");
+
+
+        card.className =
+            "student-card";
+
+
+        let statusClass =
+            "student-active";
+
+
+        if (
+            student.status ===
+            "Completed"
+        ) {
+
+            statusClass =
+                "student-completed";
+
+        }
+
+
+        if (
+            student.status ===
+            "Inactive" ||
+            student.status ===
+            "Left"
+        ) {
+
+            statusClass =
+                "student-inactive";
+
+        }
+
+
+        card.innerHTML = `
+
+    <div class="student-card-header">
+
+        <h3>
+            👨‍🎓 ${student.name || "N/A"}
+        </h3>
+
+        <span class="${statusClass}">
+            ${student.status || "Active"}
+        </span>
+
+    </div>
+
+
+    <div
+        class="student-card-main"
+        style="
+            display:grid;
+            grid-template-columns:1fr 110px;
+            gap:15px;
+            align-items:start;
+            margin-top:10px;
+        "
+    >
+
+        <div class="student-details">
+
+            <p>
+                <strong>Student ID:</strong>
+                ${student.id || "N/A"}
+            </p>
+
+
+            <p>
+                <strong>Father's Name:</strong>
+                ${student.fatherName || "N/A"}
+            </p>
+
+        </div>
+
+
+        <div
+            class="student-photo-box"
+            style="
+                text-align:center;
+                width:100%;
+            "
+        >
+
+            <img
+                src="${student.photo || 'assets/images/student-placeholder.svg'}"
+                alt="Student Photo"
+                class="student-record-photo"
+                style="
+                    width:90px;
+                    height:110px;
+                    object-fit:cover;
+                    border-radius:8px;
+                    border:1px solid #ddd;
+                    display:block;
+                    margin:auto;
+                "
+                onerror="
+                    this.src='assets/images/student-placeholder.svg'
+                "
+            >
+
+        </div>
+
+    </div>
+
+
+    <div class="student-actions">
+
+        <button
+            type="button"
+            onclick="viewStudent('${student.id}')"
+        >
+            👁️ View
+        </button>
+
+
+        <button
+            type="button"
+            onclick="editStudent('${student.id}')"
+        >
+            ✏️ Edit
+        </button>
+
+
+        <button
+            type="button"
+            onclick="openStudentCertificate('${student.id}')"
+        >
+            📜 Certificate
+        </button>
+
+    </div>
+
+`;
+
+
+        studentList.appendChild(card);
+
+        const photoElement =
+            card.querySelector(".student-record-photo");
+
+        loadStudentPhotoIntoCard(
+            student,
+            photoElement
+        );
+
+    });
+
+}
+
+
+/* ==================================================
+   SEARCH STUDENTS
+================================================== */
+
+function searchStudents() {
+
+    const search =
+        document
+        .getElementById("studentSearch")
+        .value
+        .trim()
+        .toLowerCase();
+
+
+    const students =
+        getSuryaModule("students");
+
+
+    if (search === "") {
+
+        displayStudents(students);
+
+        return;
+
+    }
+
+
+    const filteredStudents =
+        students.filter(function(student) {
+
+            const name =
+                String(student.name || "")
+                .toLowerCase();
+
+
+            const id =
+                String(student.id || "")
+                .toLowerCase();
+
+
+            const course =
+                String(student.course || "")
+                .toLowerCase();
+
+
+            const admissionId =
+                String(student.admissionId || "")
+                .toLowerCase();
+
+
+            return (
+                name.includes(search) ||
+                id.includes(search) ||
+                course.includes(search) ||
+                admissionId.includes(search)
+            );
+
+        });
+
+
+    displayStudents(
+        filteredStudents
+    );
+
+}
+
+
+/* ==================================================
+   FIND STUDENT
+================================================== */
+
+function findStudent(studentId) {
+
+    const students =
+        getSuryaModule("students");
+
+
+    return students.find(
+        function(student) {
+
+            return (
+                student.id ===
+                studentId
+            );
+
+        }
+    );
+
+}
+
+
+/* ==================================================
+   VIEW STUDENT
+================================================== */
+
+function viewStudent(studentId) {
+
+    const student =
+        findStudent(studentId);
+
+
+    if (!student) {
+
+        alert(
+            "❌ Student record not found."
+        );
+
+        return;
+
+    }
+
+
+    alert(
+
+        "👨‍🎓 STUDENT DETAILS\n\n" +
+
+        "Student ID: " +
+        (student.id || "N/A") +
+
+        "\n\nAdmission ID: " +
+        (student.admissionId || "N/A") +
+
+        "\n\nApplication ID: " +
+        (student.applicationId || "N/A") +
+
+        "\n\nName: " +
+        (student.name || "N/A") +
+
+        "\n\nFather's Name: " +
+        (student.fatherName || "N/A") +
+
+        "\n\nCourse: " +
+        (student.course || "N/A") +
+
+        "\n\nMobile: " +
+        (student.mobile || "N/A") +
+
+        "\n\nStatus: " +
+        (student.status || "N/A")
+
+    );
+
+}
+
+
+/* ==================================================
+   EDIT STUDENT
+================================================== */
+
+function editStudent(studentId) {
+
+    const student =
+        findStudent(studentId);
+
+
+    if (!student) {
+
+        alert(
+            "❌ Student record not found."
+        );
+
+        return;
+
+    }
+
+
+    currentStudent =
+        student;
+
+
+    document.getElementById(
+        "editStudentForm"
+    ).style.display = "block";
+
+
+    document.getElementById(
+        "editStudentName"
+    ).value =
+        student.name || "";
+
+
+    document.getElementById(
+        "editFatherName"
+    ).value =
+        student.fatherName || "";
+
+
+    document.getElementById(
+        "editCourse"
+    ).value =
+        student.course || "";
+
+
+    document.getElementById(
+        "editMobile"
+    ).value =
+        student.mobile || "";
+
+
+    document.getElementById(
+        "editStudentStatus"
+    ).value =
+        student.status || "Active";
+
+}
+
+
+/* ==================================================
+   SAVE STUDENT CHANGES — CENTRAL DATABASE API
+================================================== */
+
+async function saveStudentChanges() {
+
+    if (!currentStudent) {
+
+        alert(
+            "❌ Student record not selected."
+        );
+
+        return;
+
+    }
+
+
+    const adminToken =
+        sessionStorage.getItem(
+            "SURYA_ADMIN_TOKEN"
+        );
+
+
+    if (!adminToken) {
+
+        alert(
+            "❌ Admin session expired. Please login again."
+        );
+
+        window.location.replace(
+            "admin-login.html"
+        );
+
+        return;
+
+    }
+
+
+    const studentId =
+        currentStudent.id;
+
+
+    const updatedData = {
+
+        studentId:
+            studentId,
+
+        name:
+            document
+                .getElementById("editStudentName")
+                .value
+                .trim(),
+
+        fatherName:
+            document
+                .getElementById("editFatherName")
+                .value
+                .trim(),
+
+        course:
+            document
+                .getElementById("editCourse")
+                .value
+                .trim(),
+
+        mobile:
+            document
+                .getElementById("editMobile")
+                .value
+                .trim(),
+
+        status:
+            document
+                .getElementById("editStudentStatus")
+                .value,
+
+        token:
+            adminToken,
+
+        action:
+            "updateStudent"
+
+    };
+
+
+    if (!updatedData.name) {
+
+        alert(
+            "❌ Student name is required."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+
+                SURYA_DATABASE_API,
+
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "text/plain;charset=UTF-8"
+
+                    },
+
+                    body:
+                        JSON.stringify(
+                            updatedData
+                        )
+
+                }
+
+            );
+
+
+        const result =
+            await response.json();
+
+
+        console.log(
+            "UPDATE STUDENT API RESULT:",
+            result
+        );
+
+
+        if (!result.success) {
+
+            alert(
+
+                "❌ Student update failed.\n\n" +
+
+                (
+                    result.message ||
+                    "Unknown error."
+                )
+
+            );
+
+            return;
+
+        }
+
+
+        /* =========================================
+           UPDATE SUCCESS
+        ========================================= */
+
+        alert(
+
+            "✅ Student details updated successfully!\n\n" +
+
+            "Student ID: " +
+            studentId
+
+        );
+
+
+        currentStudent =
+            null;
+
+
+        document.getElementById(
+            "editStudentForm"
+        ).style.display =
+            "none";
+
+
+        /*
+         * IMPORTANT:
+         * Do not generate/change any ID.
+         * Reload students from Central Database.
+         */
+
+        loadStudents();
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "UPDATE STUDENT API ERROR:",
+            error
+        );
+
+
+        alert(
+
+            "❌ Student update request failed.\n\n" +
+
+            (
+                error.message ||
+                String(error)
+            )
+
+        );
+
+    }
+
+}
+
+
+/* ==================================================
+   CANCEL EDIT
+================================================== */
+
+function cancelStudentEdit() {
+
+    currentStudent =
+        null;
+
+
+    document.getElementById(
+        "editStudentForm"
+    ).style.display = "none";
+
+}
+
+
+/* ==================================================
+   CERTIFICATE
+================================================== */
+
+async function openStudentCertificate(studentId) {
+
+    const student =
+        findStudent(studentId);
+
+    if (!student) {
+
+        alert(
+            "❌ Student record not found."
+        );
+
+        return;
+
+    }
+
+    const adminToken =
+        sessionStorage.getItem(
+            "SURYA_ADMIN_TOKEN"
+        );
+
+    if (!adminToken) {
+
+        alert(
+            "❌ Admin session expired. Please login again."
+        );
+
+        window.location.replace(
+            "admin-login.html"
+        );
+
+        return;
+
+    }
+
+    try {
+
+        /* =========================================
+           LOAD CENTRAL RESULTS
+           IMPORTANT: filter by exact Student ID.
+           One certificate = one selected Result ID.
+        ========================================= */
+
+        const response =
+            await fetch(
+                SURYA_DATABASE_API +
+                "?action=results&token=" +
+                encodeURIComponent(adminToken)
+            );
+
+        const data =
+            await response.json();
+
+        if (
+            !data.success ||
+            !Array.isArray(data.results)
+        ) {
+            throw new Error(
+                data.message ||
+                "Unable to load student results."
+            );
+        }
+
+        const studentIdUpper =
+            String(student.id || "")
+                .trim()
+                .toUpperCase();
+
+        const results =
+            data.results
+                .filter(function(result) {
+
+                    return (
+                        String(
+                            result["Student ID"] ||
+                            result.studentId ||
+                            ""
+                        )
+                        .trim()
+                        .toUpperCase() ===
+                        studentIdUpper
+                    );
+
+                })
+                .sort(function(a, b) {
+
+                    const da =
+                        new Date(
+                            a["Exam Date"] ||
+                            a.examDate ||
+                            0
+                        ).getTime();
+
+                    const db =
+                        new Date(
+                            b["Exam Date"] ||
+                            b.examDate ||
+                            0
+                        ).getTime();
+
+                    return db - da;
+
+                });
+
+        if (!results.length) {
+
+            alert(
+                "❌ No result found for this student.\n\n" +
+                "Student ID: " +
+                student.id
+            );
+
+            return;
+
+        }
+
+        /* =========================================
+           SELECT EXACT EXAM / RESULT ID
+           This prevents mixing subjects between exams.
+        ========================================= */
+
+        let message =
+            "📜 SELECT EXAM FOR CERTIFICATE\n\n" +
+            "Student: " +
+            (student.name || "N/A") +
+            "\nStudent ID: " +
+            student.id +
+            "\n\n";
+
+        results.forEach(function(result, index) {
+
+            const rid =
+                result["Result ID"] ||
+                result.resultId ||
+                "";
+
+            const exam =
+                result["Exam"] ||
+                result.exam ||
+                "Unknown Exam";
+
+            const date =
+                result["Exam Date"] ||
+                result.examDate ||
+                "";
+
+            const status =
+                result["Status"] ||
+                result.status ||
+                "";
+
+            message +=
+                (index + 1) +
+                ". " +
+                exam +
+                (date ? " — " + date : "") +
+                " — " +
+                status +
+                "\n   Result ID: " +
+                rid +
+                "\n\n";
+
+        });
+
+        const answer =
+            prompt(
+                message +
+                "Enter exam number:"
+            );
+
+        if (answer === null) {
+            return;
+        }
+
+        const selectedIndex =
+            Number(answer) - 1;
+
+        if (
+            !Number.isInteger(selectedIndex) ||
+            selectedIndex < 0 ||
+            selectedIndex >= results.length
+        ) {
+
+            alert(
+                "❌ Invalid exam number."
+            );
+
+            return;
+
+        }
+
+        const selectedResult =
+            results[selectedIndex];
+
+        const resultId =
+            String(
+                selectedResult["Result ID"] ||
+                selectedResult.resultId ||
+                ""
+            ).trim();
+
+        if (!resultId) {
+
+            alert(
+                "❌ Result ID is missing. Certificate cannot be issued."
+            );
+
+            return;
+
+        }
+
+        const resultStatus =
+            String(
+                selectedResult["Status"] ||
+                selectedResult.status ||
+                ""
+            )
+            .trim()
+            .toUpperCase();
+
+        if (
+            resultStatus &&
+            resultStatus !== "PUBLISHED" &&
+            resultStatus !== "ACTIVE"
+        ) {
+
+            alert(
+                "⚠️ This result is not published yet.\n\n" +
+                "Result ID: " +
+                resultId +
+                "\nStatus: " +
+                (selectedResult["Status"] || selectedResult.status || "Draft") +
+                "\n\nPublish this result first, then issue the certificate."
+            );
+
+            return;
+
+        }
+
+        /* =========================================
+           CENTRAL CERTIFICATE CREATION
+           Backend uses this exact Result ID.
+        ========================================= */
+
+        const createResponse =
+            await fetch(
+                SURYA_DATABASE_API,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "text/plain;charset=utf-8"
+                    },
+                    body: JSON.stringify({
+                        action:
+                            "createCertificateFromResult",
+                        token:
+                            adminToken,
+                        resultId:
+                            resultId
+                    })
+                }
+            );
+
+        const created =
+            await createResponse.json();
+
+        if (!created.success) {
+
+            alert(
+                "❌ Certificate could not be issued.\n\n" +
+                (
+                    created.message ||
+                    "Unknown error."
+                ) +
+                (
+                    created.certificateId
+                        ? "\n\nCertificate ID: " +
+                          created.certificateId
+                        : ""
+                )
+            );
+
+            return;
+
+        }
+
+        alert(
+            "✅ Certificate created successfully!\n\n" +
+            "Certificate ID: " +
+            created.certificateId +
+            "\nResult ID: " +
+            resultId
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "CERTIFICATE ISSUE ERROR:",
+            error
+        );
+
+        alert(
+            "❌ Certificate issue request failed.\n\n" +
+            (
+                error.message ||
+                String(error)
+            )
+        );
+
+    }
+
+}
+
+
+/* ==================================================
+   STUDENT PHOTO LOADER
+   Google Drive files are loaded through the protected
+   central API so private Drive links also work.
+================================================== */
+
+function extractDriveFileId(url) {
+
+    const value =
+        String(url || "").trim();
+
+    if (!value) return "";
+
+    let match =
+        value.match(
+            /\/file\/d\/([a-zA-Z0-9_-]+)/i
+        );
+
+    if (match) return match[1];
+
+    match =
+        value.match(
+            /[?&]id=([a-zA-Z0-9_-]+)/i
+        );
+
+    if (match) return match[1];
+
+    match =
+        value.match(
+            /\/open\?id=([a-zA-Z0-9_-]+)/i
+        );
+
+    if (match) return match[1];
+
+    /* Sometimes the sheet already contains the file ID. */
+    if (/^[a-zA-Z0-9_-]{20,}$/.test(value)) {
+        return value;
+    }
+
+    return "";
+
+}
+
+
+async function loadStudentPhotoIntoCard(
+    student,
+    imageElement
+) {
+
+    if (!student || !imageElement) return;
+
+    const photoValue =
+        student.photo ||
+        student["Photo"] ||
+        "";
+
+    const fileId =
+        extractDriveFileId(photoValue);
+
+    if (!fileId) {
+        return;
+    }
+
+    const adminToken =
+        sessionStorage.getItem(
+            "SURYA_ADMIN_TOKEN"
+        );
+
+    if (!adminToken) return;
+
+    try {
+
+        const response =
+            await fetch(
+                SURYA_DATABASE_API +
+                "?action=studentPhoto&id=" +
+                encodeURIComponent(fileId) +
+                "&token=" +
+                encodeURIComponent(adminToken)
+            );
+
+        const data =
+            await response.json();
+
+        if (
+            data.success &&
+            data.data &&
+            data.mimeType
+        ) {
+
+            imageElement.src =
+                "data:" +
+                data.mimeType +
+                ";base64," +
+                data.data;
+
+        }
+
+    }
+    catch (error) {
+
+        console.warn(
+            "STUDENT PHOTO LOAD FAILED:",
+            error
+        );
+
+    }
+
+}
+
+
+
+/* ==================================================
+   PAGE LOAD
+================================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        loadStudents();
+
+    }
+);
+
+</script>
+
+
+    <script src="assets/js/project-ui.js"></script>
+
+    <script src="AERON/config/aeron-config.js"></script>
+    <script src="AERON/js/aeron-tts.js" defer></script>
+    <script src="AERON/js/aeron-widget.js" defer></script>
+</body>
+</html>

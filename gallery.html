@@ -1,0 +1,106 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : gallery.html
+Version : v1.0.0
+Author  : Devendra Kumar
+Guide   : AERON
+Created : 06-08-2026
+==================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <!-- Favicon / app icons -->
+    <link rel="icon" href="assets/images/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="48x48" href="assets/images/favicon-48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+<title>Gallery | SURYA COMPUTER OF EDUCATION CENTER</title>
+
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/responsive.css">
+
+    <link rel="stylesheet" href="assets/css/project-ui.css">
+
+    <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+    <link rel="stylesheet" href="AERON/css/aeron.css">
+</head>
+
+<body>
+
+<div class="top-bar">
+📞 <a href="tel:+917084275870">7084275870</a> | ✉️ <a href="mailto:sunilkumar5757kp@gmail.com">sunilkumar5757kp@gmail.com</a>
+</div>
+
+<header class="header">
+
+<img src="assets/images/logo.png" class="logo">
+
+<div class="title">
+<h1>SURYA COMPUTER OF EDUCATION CENTER</h1>
+<p>Kamalpur, Chandauli, Uttar Pradesh</p>
+</div>
+
+</header>
+
+<nav class="navbar">
+
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="courses.html">Courses</a>
+    <a href="admission.html">Admission</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="contact.html">Contact</a>
+
+</nav>
+
+
+<section class="gallery-page">
+<h2>Institute Gallery</h2>
+<p class="gallery-intro">Photos ko unke nature ke hisaab se alag sections me dekhiye.</p>
+
+<div id="gallerySections" class="gallery-sections">
+  <section class="gallery-category"><h3>📢 Promotional Banner</h3><div class="gallery-grid">
+    <img src="assets/images/imejeg2/IMG-20260822-WA0000.jpg" alt="Computer education promotional banner" loading="lazy">
+  </div></section>
+  <section class="gallery-category"><h3>💻 Computer Setup</h3><div class="gallery-grid">
+    <img src="assets/images/imejeg2/IMG-20260822-WA0002.jpg" alt="Computer setup" loading="lazy">
+  </div></section>
+  <section class="gallery-category"><h3>👩‍💻 Practical Training</h3><div class="gallery-grid">
+    <img src="assets/images/imejeg2/IMG-20260822-WA0003.jpg" alt="Practical computer training" loading="lazy">
+  </div></section>
+  <section class="gallery-category"><h3>☁️ Cloud & Cybersecurity</h3><div class="gallery-grid">
+    <img src="assets/images/imejeg2/IMG-20260822-WA0006.jpg" alt="Cloud and cybersecurity learning" loading="lazy">
+  </div></section>
+</div>
+
+<section class="gallery-category" style="margin-top:28px"><h3>✨ Latest Admin Uploads</h3><div id="uploadedGallery" class="gallery-grid"><p>Loading latest photos...</p></div></section>
+</section>
+
+<footer class="footer">
+
+<p>© 2026 SURYA COMPUTER OF EDUCATION CENTER</p>
+
+</footer>
+
+    <script src="assets/js/backend-config.js"></script>
+<script src="assets/js/project-ui.js"></script>
+<script>
+const GALLERY_API=window.SURYA_DATABASE_API;
+function gEsc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+async function loadUploadedGallery(){try{const r=await fetch(GALLERY_API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'publicMedia'})});const d=await r.json();const a=d.media||[];if(!a.length){uploadedGallery.innerHTML='<p>No admin-uploaded photos yet.</p>';return;}const groups={};a.forEach(x=>(groups[x.category||'Institute']??=[]).push(x));uploadedGallery.parentElement.innerHTML=Object.entries(groups).map(([cat,items])=>`<section class="gallery-category"><h3>${gEsc(cat)}</h3><div class="gallery-grid">${items.map(x=>`<img src="${gEsc(x.url)}" alt="${gEsc(x.title)}" title="${gEsc(x.title)}" loading="lazy">`).join('')}</div></section>`).join('');}catch(e){uploadedGallery.innerHTML='<p>Latest uploads are temporarily unavailable.</p>';}}
+loadUploadedGallery();
+document.addEventListener('click',e=>{if(e.target.matches('.gallery-grid img')){const o=document.createElement('div');o.className='gallery-lightbox';o.innerHTML=`<button aria-label="Close">×</button><img src="${e.target.src}" alt="${e.target.alt}">`;o.addEventListener('click',()=>o.remove());document.body.appendChild(o);}});
+</script>
+
+    <script src="AERON/config/aeron-config.js"></script>
+    <script src="AERON/js/aeron-tts.js" defer></script>
+    <script src="AERON/js/aeron-widget.js" defer></script>
+</body>
+</html>
