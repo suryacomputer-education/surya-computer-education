@@ -266,9 +266,7 @@
                                             : ""
                                         }
 
-                                        ${
-                                            watchURL
-                                            ? `
+                                        ${String(item.accessMode||"FREE").toUpperCase()==="PAID" && String(item.accessState||"").toUpperCase()!=="UNLOCKED" ? `<p><b>🔒 PAID</b> — Fee payment/verification required to unlock.</p>` : (watchURL ? `
                                             <a
                                                 class="watch-btn"
                                                 href="${esc(watchURL)}"
@@ -277,8 +275,7 @@
                                             >
                                                 ▶️ Watch Class
                                             </a>
-                                            `
-                                            : ""
+                                            ` : "")
                                         }
 
                                     </div>

@@ -84,7 +84,7 @@
 
 <script>
 "use strict";
-const API=window.SURYA_DATABASE_API;
+const API= window.SURYA_DATABASE_API;
 const TOKEN=sessionStorage.getItem("SURYA_ADMIN_TOKEN");
 let selectedTest=null, allTests=[], allCourses=[], allSubjects=[];
 
@@ -148,14 +148,14 @@ function editTest(t){
  document.getElementById("duration").value=t["Duration"]||30;
  document.getElementById("totalMarks").value=t["Total Marks"]||100;
  document.getElementById("description").value=t["Description"]||"";
- document.getElementById("status").value=t["Status"]||"Draft";
+ document.getElementById("status").value=t["Status"]||"Draft";document.getElementById("accessMode").value=t["Access Mode"]||"FREE";
  window.scrollTo({top:0,behavior:"smooth"});
 }
 function clearForm(){
  ["testId","title","duration","totalMarks","description"].forEach(id=>document.getElementById(id).value="");
  document.getElementById("courseSelect").value="";
  populateSubjectSelect();
- document.getElementById("status").value="Draft";
+ document.getElementById("status").value="Draft";document.getElementById("accessMode").value="FREE";
 }
 
 async function saveTest(){
@@ -169,7 +169,7 @@ async function saveTest(){
   const statusValue=document.getElementById("status").value;
   const descriptionValue=document.getElementById("description").value.trim();
   if(!titleValue||!courseValue||!subjectValue)throw new Error("Test title, Course and Subject are required.");
-  await api({action:"saveMockTest",test:{testId:testIdValue,title:titleValue,course:courseValue,subjectId:subjectValue,duration:durationValue,totalMarks:totalMarksValue,status:statusValue,description:descriptionValue}});
+  await api({action:"saveMockTest",test:{testId:testIdValue,title:titleValue,course:courseValue,subjectId:subjectValue,duration:durationValue,totalMarks:totalMarksValue,status:statusValue,accessMode:document.getElementById("accessMode").value,description:descriptionValue}});
   msg("✅ Subject-wise CBT test saved.");clearForm();const d=await api({action:"mockTests"});allTests=d.tests||[];renderTests();
  }catch(e){msg("❌ "+e.message,true);}
 }

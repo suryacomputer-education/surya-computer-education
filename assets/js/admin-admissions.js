@@ -258,6 +258,30 @@ const response =
                         status:
                             record["Status"] || "Pending",
 
+                        paymentMethod:
+                            record["Payment Method"] || "",
+
+                        paymentStatus:
+                            record["Payment Status"] || "NOT_STARTED",
+
+                        paymentId:
+                            record["Payment ID"] || "",
+
+                        paymentReceiptNumber:
+                            record["Payment Receipt Number"] || "",
+
+                        courseFee:
+                            record["Course Fee"] || 0,
+
+                        fullPaymentDiscount:
+                            record["Full Payment Discount"] || 0,
+
+                        finalPayable:
+                            record["Final Payable"] || 0,
+
+                        admissionFee:
+                            record["Admission Fee"] || 0,
+
                         aadhaarFrontUrl:
                             record["Aadhaar Front URL"] || "",
 
@@ -576,6 +600,12 @@ const photoHTML = `
 
         </div>
 
+        <div class="application-details" style="margin-top:10px;">
+            <p><strong>Admission Fee:</strong> ₹${Number(application.admissionFee || 0).toLocaleString("en-IN")}</p>
+            <p><strong>Payment:</strong> ${application.paymentMethod || "Not selected"} — ${application.paymentStatus || "NOT_STARTED"}</p>
+            ${application.paymentReceiptNumber ? `<p><strong>Receipt:</strong> ${application.paymentReceiptNumber}</p>` : ""}
+        </div>
+
 
         <div class="application-actions">
 
@@ -595,6 +625,9 @@ const photoHTML = `
               📄 View Documents
             </button>
 
+
+            ${application.status === "Pending" && String(application.paymentMethod || "").toLowerCase() === "cash" && String(application.paymentStatus || "").toUpperCase() !== "VERIFIED_SUCCESS" ? `
+            <button class="approve-btn" type="button" onclick="verifyCashAndApprove('${application.id}', ${Number(application.admissionFee || 0)})">💵 Verify Cash & Approve</button>` : ""}
 
             <button
                 class="approve-btn"
@@ -1218,6 +1251,20 @@ function findApplication(
 
 }
 
+
+async function verifyCashAndApprove(applicationId, amount) {
+    if (!amount || amount <= 0) { alert("This course has no configured admission fee."); return; }
+    const token = sessionStorage.getItem("SURYA_ADMIN_TOKEN") || "";
+    if (!token) { window.location.replace("admin-login.html"); return; }
+    if (!confirm("Confirm that ₹" + Number(amount).toLocaleString("en-IN") + " cash has actually been received and verified by the institute.\n\nApplication: " + applicationId)) return;
+    try {
+        const r = await fetch(SURYA_DATABASE_API, {method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"recordCashAdmissionPayment",token:token,applicationId:applicationId,amount:Number(amount),notes:"Cash verified by Admin"})});
+        const d = await r.json();
+        if (!d.success) throw new Error(d.message || "Cash verification failed.");
+        alert("✅ Cash payment verified.\nReceipt: " + (d.receiptNumber || "N/A") + "\n\nNow approving the application...");
+        await approveApplication(applicationId);
+    } catch (e) { alert("❌ " + e.message); }
+}
 
 /* ==================================================
    APPROVE APPLICATION — CENTRAL DATABASE

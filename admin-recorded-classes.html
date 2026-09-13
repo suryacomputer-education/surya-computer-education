@@ -10,6 +10,7 @@
     <link rel="icon" type="image/png" sizes="48x48" href="assets/images/favicon-48.png">
 
     <script src="assets/js/backend-config.js"></script>
+    <script src="assets/js/admin-guard.js"></script>
 
     <style>
         * {
@@ -375,11 +376,7 @@ function $(id) {
 
 function getAdminToken() {
 
-    return (
-        localStorage.getItem("SURYA_ADMIN_TOKEN") ||
-        sessionStorage.getItem("SURYA_ADMIN_TOKEN") ||
-        ""
-    );
+    return sessionStorage.getItem("SURYA_ADMIN_TOKEN") || "";
 }
 
 

@@ -203,15 +203,15 @@ async function loadStudyMaterials(){
                                 ? `<p>${esc(description)}</p>`
                                 : ""}
 
-                            ${
-                                viewURL
-                                ? `<a class="btn"
+                            ${String(material.accessMode||"FREE").toUpperCase()==="PAID" && String(material.accessState||"").toUpperCase()!=="UNLOCKED"
+                                ? `<p><b>🔒 PAID</b> — Fee payment/verification required to unlock.</p>`
+                                : (viewURL ? `<a class="btn"
                                       href="${esc(viewURL)}"
                                       target="_blank"
                                       rel="noopener">
                                       📖 Read PDF
                                    </a>`
-                                : ""
+                                : "")
                             }
 
                         </div>

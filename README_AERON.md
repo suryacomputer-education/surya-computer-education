@@ -327,3 +327,7 @@ This release addresses Android Chrome keyboard overlap and composer usability ba
 - CSS no longer competes with JavaScript using a `100dvh` override for the native keyboard mode; JavaScript owns the exact visual-viewport frame.
 
 For browser compatibility, native device keyboard behaviour depends on the browser exposing IME/visual-viewport geometry. The custom AERON keyboard remains available independently.
+
+
+## Phase 2 Fee Gateway
+See `GATEWAY_SETUP_PHASE2.md` for Razorpay configuration, security, testing and recovery flow.

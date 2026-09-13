@@ -324,6 +324,7 @@ Purpose : Admission Acknowledgement
     <a href="about.html">About</a>
 
     <a href="courses.html">Courses</a>
+            <a href="digital-library.html">Digital Library</a>
 
     <a href="admission.html">Admission</a>
 
@@ -691,6 +692,22 @@ Purpose : Admission Acknowledgement
 
 
         <!-- BUTTONS -->
+
+        <section class="ack-section" id="admissionFeeSection">
+            <h3>💰 Admission Fee & Payment</h3>
+            <div class="details-grid">
+                <div class="detail-item"><span class="detail-label">Course Fee</span><span class="detail-value" id="feeCourse">—</span></div>
+                <div class="detail-item"><span class="detail-label">Full Payment Discount</span><span class="detail-value" id="feeDiscount">—</span></div>
+                <div class="detail-item"><span class="detail-label">Final Payable</span><span class="detail-value" id="feeFinal">—</span></div>
+                <div class="detail-item"><span class="detail-label">Admission Fee</span><span class="detail-value" id="feeAdmission">—</span></div>
+            </div>
+            <p id="feePaymentStatus" style="margin-top:12px;font-weight:700;">Payment option loading...</p>
+            <div class="action-buttons" style="margin-top:12px;">
+                <button type="button" class="primary" id="onlinePaymentBtn">💳 Online Payment</button>
+                <button type="button" class="secondary" id="cashPaymentBtn">💵 Cash Payment</button>
+            </div>
+            <div id="cashPaymentMessage" style="display:none;margin-top:12px;padding:12px;border-radius:8px;background:#fff8e1;border:1px solid #f0c36d;line-height:1.6;">Cash Payment के लिए कृपया संस्थान से संपर्क करें। भुगतान प्राप्त होने और Admin verification के बाद ही admission approval किया जाएगा।</div>
+        </section>
 
         <div class="action-buttons">
 
@@ -1110,7 +1127,47 @@ setText(
 
 </script>
 
-    <script src="assets/js/project-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(async function(){
+  const id=localStorage.getItem("lastApplicationId");
+  const api=window.SURYA_DATABASE_API;
+  const money=v=>"₹"+Number(v||0).toLocaleString("en-IN");
+  if(!id||!api)return;
+  const post=async body=>{const r=await fetch(api,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(body)});return r.json();};
+  try{
+    const r=await post({action:"admissionFeeQuote",applicationId:id}); const d=r;
+    if(!d.success)throw new Error(d.message||"Fee details unavailable.");
+    document.getElementById("feeCourse").textContent=money(d.courseFee);
+    document.getElementById("feeDiscount").textContent=money(d.fullPaymentDiscount);
+    document.getElementById("feeFinal").textContent=money(d.finalPayable);
+    document.getElementById("feeAdmission").textContent=money(d.admissionFee);
+    document.getElementById("feePaymentStatus").textContent="Payment status: "+(d.paymentStatus||"NOT_STARTED");
+    document.getElementById("cashPaymentBtn").onclick=async function(){
+      try{const dd=await post({action:"setAdmissionPaymentMethod",applicationId:id,paymentMethod:"Cash"});if(!dd.success)throw new Error(dd.message);document.getElementById("feePaymentStatus").textContent="Payment status: "+dd.paymentStatus;document.getElementById("cashPaymentMessage").style.display="block";}catch(e){alert("❌ "+e.message);}
+    };
+    document.getElementById("onlinePaymentBtn").textContent="📲 Pay via UPI";
+    document.getElementById("onlinePaymentBtn").onclick=async function(){
+      const btn=this;btn.disabled=true;
+      try{
+        const dd=await post({action:"setAdmissionPaymentMethod",applicationId:id,paymentMethod:"UPI"});
+        if(!dd.success)throw new Error(dd.message||"Could not select payment method.");
+        const q=await post({action:"requestAdmissionUpiPayment",applicationId:id});
+        if(!q.success)throw new Error(q.message||"Could not create UPI payment request.");
+        document.getElementById("feePaymentStatus").textContent="PENDING VERIFICATION — Payment Sir के UPI में भेजें और फिर Admin verification का इंतजार करें.";
+        let box=document.getElementById("upiPaymentBox");
+        if(!box){box=document.createElement("div");box.id="upiPaymentBox";box.style="margin-top:14px;padding:16px;border:1px solid #ddd;border-radius:12px;text-align:center;line-height:1.7;";document.getElementById("admissionFeeSection").appendChild(box);}
+        const u=q.upi||{};const uri=q.upiUri||"";
+        box.innerHTML='<h3>📲 Direct UPI Payment</h3><p><b>UPI ID:</b> '+String(u.upiId||"")+'</p><p><b>Amount:</b> '+money(q.amount)+'</p><p><b>Payment Reference:</b> <b>'+String(q.reference||"")+'</b></p><div id="upiQr" style="display:flex;justify-content:center;margin:12px 0"></div><p>UPI app से QR scan करके payment करें। Payment के बाद <b>दोबारा payment न करें</b>।</p><p id="upiVerifyText">Status: PENDING VERIFICATION</p>';
+        if(typeof QRCode!=="undefined"&&uri)new QRCode(document.getElementById("upiQr"),{text:uri,width:220,height:220});
+        const check=async()=>{try{const st=await post({action:"upiPaymentStatus",requestId:q.requestId});if(st.success&&st.status==="VERIFIED_SUCCESS"){document.getElementById("upiVerifyText").textContent="✅ Payment verified. Receipt: "+(st.receiptNumber||"—");btn.disabled=true;}else if(st.success&&st.status==="REJECTED"){document.getElementById("upiVerifyText").textContent="❌ Payment was not verified. Please contact the institute.";}else{document.getElementById("upiVerifyText").textContent="Status: PENDING VERIFICATION";}}catch(_){} };
+        await check();window.__suryaUpiCheck=setInterval(check,10000);
+      }catch(e){alert("❌ "+e.message);btn.disabled=false;}
+    };
+  }catch(e){document.getElementById("feePaymentStatus").textContent="Fee details could not be loaded. Please contact the institute.";console.warn(e);}
+})();
+</script>
+<script src="assets/js/project-ui.js"></script>
 
     <script src="AERON/config/aeron-config.js"></script>
     <script src="AERON/js/aeron-tts.js" defer></script>

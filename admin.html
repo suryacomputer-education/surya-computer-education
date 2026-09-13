@@ -291,7 +291,9 @@ Security:
     </a>
 
     <a href="admin-courses.html">Courses</a>
+    <a href="admin-fees.html">Fees</a>
     <a href="admin-mock-tests.html">Mock Tests</a>
+<a href="admin-question-bank.html" class="admin-card">🧠 Question Bank<br><span>PDF/Text → Questions</span></a>
                     <a href="admin-live-classes.html">Live Classes</a>
     <a href="admin-contact-messages.html">Messages</a>
 
@@ -496,6 +498,16 @@ Security:
 </div>	
 
         <!-- ==================================================
+             ATTENDANCE
+        ================================================== -->
+        <div class="admin-card">
+            <div class="admin-icon">📅</div>
+            <h3>Attendance</h3>
+            <p>Course-wise daily attendance, holidays and attendance history.</p>
+            <a href="admin-attendance.html" class="admin-btn">Manage Attendance</a>
+        </div>
+
+        <!-- ==================================================
              NOTICES
         ================================================== -->
 
@@ -522,6 +534,16 @@ Security:
 
         </div>
 
+
+        <!-- ==================================================
+             DIGITAL LIBRARY
+        ================================================== -->
+        <div class="admin-card">
+            <div class="admin-icon">📚</div>
+            <h3>Digital Library</h3>
+            <p>Library admissions और library students manage करें.</p>
+            <a href="admin-library.html" class="admin-btn">Manage Digital Library</a>
+        </div>
 
         <!-- ==================================================
              COURSES
@@ -617,6 +639,18 @@ Security:
                 <span>
                     <strong>Change Password</strong>
                     <small>Admin password बदलें</small>
+                </span>
+            </button>
+
+            <button
+                type="button"
+                class="admin-settings-item"
+                onclick="openCeoPanelFromSettings();"
+            >
+                <span class="admin-settings-item-icon">👔</span>
+                <span>
+                    <strong>CEO / Financial Panel</strong>
+                    <small>Authorized CEO access — Gmail OTP required</small>
                 </span>
             </button>
 
@@ -1100,6 +1134,12 @@ document
     );
 
 
+
+
+function openCeoPanelFromSettings(){
+    closeAdminSettings();
+    window.location.href="admin-ceo.html";
+}
 
 /* ==================================================
    SERVER-SIDE LOGOUT

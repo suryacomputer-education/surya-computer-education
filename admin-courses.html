@@ -155,6 +155,22 @@ Created : 09-08-2026
             autocomplete="off"
         >
 
+        <input
+            type="number"
+            id="fullPaymentDiscount"
+            min="0"
+            placeholder="Full Payment Discount (optional)"
+            autocomplete="off"
+        >
+
+        <input
+            type="number"
+            id="admissionFee"
+            min="0"
+            placeholder="Admission Fee (optional)"
+            autocomplete="off"
+        >
+
         <textarea
             id="courseDescription"
             rows="3"
@@ -321,6 +337,8 @@ async function saveCourse() {
     const courseName = document.getElementById("courseName").value.trim();
     const duration = document.getElementById("courseDuration").value.trim();
     const fee = document.getElementById("courseFee").value;
+    const fullPaymentDiscount = document.getElementById("fullPaymentDiscount").value;
+    const admissionFee = document.getElementById("admissionFee").value;
     const description = document.getElementById("courseDescription").value.trim();
     const status = document.getElementById("courseStatus").value;
     const message = document.getElementById("courseMessage");
@@ -339,7 +357,7 @@ async function saveCourse() {
             headers:{"Content-Type":"text/plain;charset=utf-8"},
             body:JSON.stringify({
                 action, token, courseId, courseName, duration,
-                fee:Number(fee), description, status
+                fee:Number(fee), fullPaymentDiscount:Number(fullPaymentDiscount || 0), admissionFee:Number(admissionFee || 0), description, status
             })
         });
         const result = await response.json();
@@ -355,7 +373,7 @@ async function saveCourse() {
 }
 
 function clearCourseForm() {
-    ["courseEditId","courseId","courseName","courseDuration","courseFee","courseDescription"].forEach(function(id){
+    ["courseEditId","courseId","courseName","courseDuration","courseFee","fullPaymentDiscount","admissionFee","courseDescription"].forEach(function(id){
         document.getElementById(id).value = "";
     });
     document.getElementById("courseStatus").value = "Active";
@@ -367,6 +385,8 @@ function editCourse(course) {
     document.getElementById("courseName").value = course["Course Name"] || course.courseName || "";
     document.getElementById("courseDuration").value = course["Duration"] || course.duration || "";
     document.getElementById("courseFee").value = course["Fee"] ?? course.fee ?? "";
+    document.getElementById("fullPaymentDiscount").value = course["Full Payment Discount"] ?? course.fullPaymentDiscount ?? 0;
+    document.getElementById("admissionFee").value = course["Admission Fee"] ?? course.admissionFee ?? 0;
     document.getElementById("courseDescription").value = course["Description"] || course.description || "";
     document.getElementById("courseStatus").value = course["Status"] || course.status || "Active";
     window.scrollTo({top:0,behavior:"smooth"});
@@ -402,6 +422,8 @@ function renderCourseList() {
         const name = course["Course Name"] || course.courseName || "";
         const duration = course["Duration"] || course.duration || "";
         const fee = course["Fee"] ?? course.fee ?? 0;
+        const discount = course["Full Payment Discount"] ?? course.fullPaymentDiscount ?? 0;
+        const admissionFee = course["Admission Fee"] ?? course.admissionFee ?? 0;
         const description = course["Description"] || course.description || "";
         const status = course["Status"] || course.status || "Active";
 
@@ -409,6 +431,7 @@ function renderCourseList() {
             <div>
                 <strong>📚 ${escapeHTML(name)}</strong>
                 <div>🆔 ${escapeHTML(id)} • ⏱ ${escapeHTML(duration)} • 💰 ₹${escapeHTML(fee)}</div>
+                <div>🎁 Full-payment discount: ₹${escapeHTML(discount)} • 🧾 Admission Fee: ₹${escapeHTML(admissionFee)}</div>
                 <div>${escapeHTML(description)}</div>
                 <b>${escapeHTML(status)}</b>
             </div>

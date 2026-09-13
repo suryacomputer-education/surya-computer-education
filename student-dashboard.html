@@ -165,6 +165,27 @@ STUDENT DASHBOARD
     </div>
 
 
+    <!-- FEES -->
+    <div class="dashboard-card">
+        <h3>💰 My Fees</h3>
+        <p>Total Fee: <strong id="feeTotal">Loading...</strong></p>
+        <p>Discount: <strong id="feeDiscount">—</strong></p>
+        <p>Final Payable: <strong id="feeFinal">—</strong></p>
+        <p>Paid: <strong id="feePaid">—</strong></p>
+        <p>Due: <strong id="feeDue">—</strong></p>
+        <p>Status: <strong id="feeStatus">—</strong></p>
+        <div id="feeHistory" style="margin-top:10px;"></div>
+        <button type="button" class="dashboard-btn" onclick="payFeesOnline()">💳 Pay Fees Online</button>
+    </div>
+
+    <!-- ATTENDANCE -->
+    <div class="dashboard-card">
+        <h3>📅 My Attendance</h3>
+        <div id="attendanceSummary">Loading attendance...</div>
+        <div id="attendanceHistory" style="margin-top:10px;max-height:220px;overflow:auto;"></div>
+    </div>
+
+
     <!-- RESULT -->
 
     <div class="dashboard-card">
@@ -330,19 +351,57 @@ async function loadStudentDashboard(){
   document.getElementById("dashboardMobile").textContent=s.Mobile||"N/A";
   document.getElementById("dashboardStatus").textContent=s.Status||"N/A";
   try {
+   const at=await studentApi({action:"studentAttendance"});
+   const a=at.summary||{};
+   document.getElementById("attendanceSummary").innerHTML=`<p><b>Working Days:</b> ${a.workingDays||0}</p><p>✅ Present: <b>${a.present||0}</b> &nbsp; ❌ Absent: <b>${a.absent||0}</b> &nbsp; ⏱️ Late: <b>${a.late||0}</b> &nbsp; 📝 Excused: <b>${a.excused||0}</b></p><p><b>Attendance:</b> ${Number(a.percentage||0).toFixed(2)}%</p>`;
+   document.getElementById("attendanceHistory").innerHTML=(at.history||[]).length?'<b>History</b><br>'+(at.history||[]).map(x=>`${x.date} • ${x.course||""} • <b>${x.status}</b>${x.reason?" • "+x.reason:""}`).join('<br>'):'No saved attendance yet.';
+  } catch(e) { document.getElementById("attendanceSummary").textContent="Attendance details unavailable"; }
+  try {
    const mt=await studentApi({action:"publishedMockTests"});
    const count=(mt.tests||[]).length;
    document.getElementById("mockCount").textContent=count ? (count+" published test"+(count===1?"":"s")+" available") : "No published tests right now";
   } catch(e) { document.getElementById("mockCount").textContent="Mock test center available"; }
+  try {
+   const fd=await studentApi({action:"studentFeeSummary"});
+   const f=fd.fee||{}; const money=v=>"₹"+Number(v||0).toLocaleString("en-IN");
+   document.getElementById("feeTotal").textContent=money(f["Course Fee"]);
+   document.getElementById("feeDiscount").textContent=money(f["Full Payment Discount"]);
+   document.getElementById("feeFinal").textContent=money(f["Final Payable"]);
+   document.getElementById("feePaid").textContent=money(f.Paid);
+   document.getElementById("feeDue").textContent=money(f.Due);
+   document.getElementById("feeStatus").textContent=f.Status||"Not available";
+   document.getElementById("feeHistory").innerHTML=(fd.payments||[]).length ? "<b>Payment History</b><br>"+(fd.payments||[]).map(p=>`${p.receiptNumber||"—"} • ${money(p.amount)} • ${p.mode||""} • ${p.status||""}`).join("<br>") : "No payment history yet.";
+  } catch(e) { document.getElementById("feeStatus").textContent="Fee details unavailable"; }
   if(s.Photo)document.getElementById("dashboardStudentPhoto").src=s.Photo;
   if(s.Signature)document.getElementById("studentSignature").src=s.Signature;
  }catch(e){sessionStorage.clear();alert("❌ "+e.message);location.href="student-login.html";}
 }
 async function changePassword(){const current=prompt("Current password:");if(current===null)return;const next=prompt("New password (8+ characters):");if(next===null)return;try{const d=await studentApi({action:"studentChangePassword",currentPassword:current,newPassword:next});alert(d.message||"Password changed successfully.");}catch(e){alert("❌ "+e.message);}}
+async function payFeesOnline(){
+  try {
+    const fd=await studentApi({action:"studentFeeSummary"});
+    const due=Number((fd.fee||{}).Due||0);
+    if(due<=0){alert("✅ आपकी सभी fees paid हैं. कोई amount due नहीं है.");return;}
+    const raw=prompt("कितनी fee UPI से pay करनी है?", String(Math.round(due)));
+    if(raw===null)return;
+    const amount=Number(String(raw).replace(/,/g,""));
+    if(!Number.isFinite(amount)||amount<=0||amount>due){alert("❌ Amount ₹1 से ₹"+due.toLocaleString("en-IN")+" के बीच होना चाहिए.");return;}
+    const od=await studentApi({action:"requestStudentUpiPayment",amount:amount});
+    if(!od.success)throw new Error(od.message||"Unable to create UPI payment request.");
+    const u=od.upi||{}; const uri=od.upiUri||"";
+    const box=document.createElement("div"); box.style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px;";
+    box.innerHTML='<div style="background:#fff;color:#111;max-width:420px;width:100%;padding:20px;border-radius:16px;text-align:center;line-height:1.6"><h2>📲 Direct UPI Payment</h2><p><b>UPI ID:</b> '+String(u.upiId||"")+'</p><p><b>Amount:</b> ₹'+Number(od.amount||0).toLocaleString("en-IN")+'</p><p><b>Reference:</b> '+String(od.reference||"")+'</p><div id="studentUpiQr" style="display:flex;justify-content:center;margin:12px 0"></div><p>QR scan करके Sir के UPI में payment करें। Payment के बाद दोबारा payment न करें.</p><p id="studentUpiStatus"><b>PENDING VERIFICATION</b></p><button id="closeUpi" type="button">Close</button></div>';
+    document.body.appendChild(box);
+    if(typeof QRCode!=="undefined"&&uri)new QRCode(document.getElementById("studentUpiQr"),{text:uri,width:220,height:220});
+    let timer=setInterval(async()=>{try{const st=await studentApi({action:"upiPaymentStatus",requestId:od.requestId});if(st.status==="VERIFIED_SUCCESS"){document.getElementById("studentUpiStatus").innerHTML="✅ VERIFIED — Receipt: "+(st.receiptNumber||"—");clearInterval(timer);await loadStudentDashboard();}else if(st.status==="REJECTED"){document.getElementById("studentUpiStatus").innerHTML="❌ Payment not verified. Please contact the institute.";clearInterval(timer);}}catch(_){}},10000);
+    document.getElementById("closeUpi").onclick=()=>{clearInterval(timer);box.remove();};
+  } catch(e) { alert("❌ "+e.message); }
+}
 async function logoutStudent(){try{await studentApi({action:"studentLogout"});}catch(e){}sessionStorage.removeItem("SURYA_STUDENT_TOKEN");sessionStorage.removeItem("SURYA_STUDENT_ID");sessionStorage.removeItem("SURYA_STUDENT_AUTH");location.href="student-login.html";}
 loadStudentDashboard();
 </script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="assets/js/project-ui.js"></script>
     <script src="AERON/config/aeron-config.js"></script>
     <script src="AERON/js/aeron-tts.js" defer></script>

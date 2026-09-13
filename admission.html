@@ -269,7 +269,8 @@ ADMISSION FORM
     <input
         type="email"
         id="email"
-        placeholder="Email Address"
+        placeholder="Registered Gmail Address"
+        required
     >
 
 
@@ -1175,7 +1176,7 @@ initStudentMarcsheetUpload();
         const select=document.getElementById("course");
         if(!select) return;
         try{
-            const r=await fetch("window.SURYA_DATABASE_API + "?action=publicCourses"");
+            const r=await fetch(window.SURYA_DATABASE_API + "?action=publicCourses");
             const d=await r.json();
             if(!d.success || !Array.isArray(d.courses)) return;
             const current=select.value;
