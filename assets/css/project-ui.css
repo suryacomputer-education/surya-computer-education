@@ -54,3 +54,95 @@ footer a,.footer a{color:#fff!important}
 html[data-theme="dark"] .notice-box,html.dark-mode .notice-box,html.dark .notice-box,body.dark-mode .notice-box,body.dark .notice-box{background:#172033!important;color:#f8fafc!important}
 html[data-theme="dark"] .notice-box *,html.dark-mode .notice-box *,html.dark .notice-box *,body.dark-mode .notice-box *,body.dark .notice-box *{color:#f8fafc!important}
 html[data-theme="dark"] .top-bar a,html.dark-mode .top-bar a,html.dark .top-bar a,body.dark-mode .top-bar a,body.dark .top-bar a,html[data-theme="dark"] footer a,html.dark-mode footer a,html.dark footer a,body.dark-mode footer a,body.dark footer a{color:#e5e7eb!important}
+/* =========================================================
+   SURYA DIGITAL LIBRARY
+   RECTANGULAR RUNNING LIGHT BORDER
+   ========================================================= */
+
+.digital-library-nav {
+    position: relative;
+    z-index: 1;
+    display: inline-block;
+    font-weight: 700;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    padding: 8px 12px;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+/* Very light permanent rectangular border/glow */
+.digital-library-nav {
+    box-shadow:
+        0 0 4px rgba(255, 255, 255, 0.10),
+        inset 0 0 4px rgba(255, 255, 255, 0.06);
+}
+
+/* The moving light */
+.digital-library-nav::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+
+    width: 35px;
+    height: 2px;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.95),
+        transparent
+    );
+
+    box-shadow:
+        0 0 5px rgba(255, 255, 255, 0.75),
+        0 0 10px rgba(255, 255, 255, 0.35);
+
+    offset-path: inset(0 round 8px);
+    offset-distance: 0%;
+    offset-rotate: auto;
+
+    animation: digitalLibraryLightRun 5s linear infinite;
+
+    pointer-events: none;
+}
+
+/* Keep the text completely still */
+.digital-library-nav::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+@keyframes digitalLibraryLightRun {
+    to {
+        offset-distance: 100%;
+    }
+}
+
+
+/* =========================================================
+   MOBILE NAVIGATION
+   Result → Digital Library → Certificate
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .navbar a:nth-child(1)  { order: 1; }
+    .navbar a:nth-child(2)  { order: 2; }
+    .navbar a:nth-child(3)  { order: 3; }
+    .navbar a:nth-child(4)  { order: 4; }
+    .navbar a:nth-child(6)  { order: 5; }
+    .navbar a:nth-child(5)  { order: 6; }
+    .navbar a:nth-child(7)  { order: 7; }
+    .navbar a:nth-child(8)  { order: 8; }
+    .navbar a:nth-child(9)  { order: 9; }
+    .navbar a:nth-child(10) { order: 10; }
+
+    .digital-library-nav {
+        padding: 7px 10px;
+    }
+}
