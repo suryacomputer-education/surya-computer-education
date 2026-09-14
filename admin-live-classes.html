@@ -30,6 +30,7 @@
 <option value="Draft">Draft</option>
 <option value="Published">Published</option>
 </select>
+<select id="liveAccessMode"><option value="FREE">FREE — सब students</option><option value="PAID">PAID — payment required</option></select>
 </div>
 
 <button class="btn" onclick="saveLiveClass()">💾 Save</button>
@@ -176,7 +177,8 @@ async function saveLiveClass() {
 
         description: $("liveDesc").value.trim(),
 
-        status: $("liveStatus").value
+        status: $("liveStatus").value,
+        accessMode: $("liveAccessMode").value
     };
 
     if (!data.title) {
@@ -252,6 +254,7 @@ async function loadLiveClasses() {
             ${esc(normalizeTime(c["End Time"]))}
 
             <br>
+            🔐 Access: ${esc(c["Access Mode"] || "FREE")}
 
             <button class="btn"
                 onclick='editLiveClass(${JSON.stringify(c)})'>
@@ -305,6 +308,9 @@ function editLiveClass(c) {
     $("liveStatus").value =
         String(c.Status || "Draft");
 
+    $("liveAccessMode").value =
+        String(c["Access Mode"] || "FREE").toUpperCase()==="PAID" ? "PAID" : "FREE";
+
     $("msg").textContent =
         "✏️ Editing " + c["Class ID"];
 }
@@ -321,6 +327,7 @@ function clearLiveForm() {
     $("liveUrl").value = "";
     $("liveDesc").value = "";
     $("liveStatus").value = "Draft";
+    $("liveAccessMode").value = "FREE";
     $("msg").textContent = "";
 }
 

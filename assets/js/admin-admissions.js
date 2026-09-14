@@ -42,7 +42,7 @@ function formatIndianDateTime(value) {
             hour: "2-digit",
             minute: "2-digit",
             second: "2-digit",
-            hour12: false
+            hour12: true
         }
     );
 }
@@ -208,6 +208,12 @@ const response =
                              record["Date of Birth"] || ""
                            ),
 
+                        studentId:
+                            record["Student ID"] || record["ID"] || "",
+
+                        admissionId:
+                            record["Admission ID"] || "",
+
                         course:
                             record["Course"] || "",
 
@@ -221,16 +227,16 @@ const response =
                             record["Address"] || "",
 
                         photo:
-                            record["Photo"] || "",
+                            record["Photo URL"] || record["Photo"] || "",
 
                         photoName:
                             record["Photo Name"] || "",
 
                         signature:
-                            record["Signature"] || "",
+                            record["Signature URL"] || record["Signature"] || "",
 
                         marcsheet:
-                            record["Marcsheet"] || "",
+                            record["Marksheet URL"] || record["Marcsheet"] || record["Marksheet"] || "",
 
                         aadhaarUploaded:
                             record["Aadhaar Uploaded"] || "",
@@ -628,6 +634,7 @@ const photoHTML = `
 
             ${application.status === "Pending" && String(application.paymentMethod || "").toLowerCase() === "cash" && String(application.paymentStatus || "").toUpperCase() !== "VERIFIED_SUCCESS" ? `
             <button class="approve-btn" type="button" onclick="verifyCashAndApprove('${application.id}', ${Number(application.admissionFee || 0)})">💵 Verify Cash & Approve</button>` : ""}
+            ${application.status === "Pending" && String(application.paymentMethod || "").toUpperCase() === "UPI" && String(application.paymentStatus || "").toUpperCase() !== "VERIFIED_SUCCESS" ? `<a class="view-btn" href="admin-fees.html#upiPending" style="text-decoration:none;display:inline-block">💳 Verify UPI in Fees</a>` : ""}
 
             <button
                 class="approve-btn"
@@ -819,15 +826,15 @@ img.style.setProperty("flex", "0 0 120px", "important");
 img.style.setProperty("flex-shrink", "0", "important");
 img.style.setProperty("flex-grow", "0", "important");
 
-img.style.setProperty("object-fit", "fill", "important");
+img.style.setProperty("object-fit", "cover", "important");
 img.style.setProperty("object-position", "center", "important");
 
 img.style.setProperty("display", "block", "important");
 img.style.setProperty("margin", "0", "important");
 img.style.setProperty("padding", "0", "important");
 img.style.setProperty("box-sizing", "border-box", "important");
-      img.style.position = "relative";
-img.style.left = "28px";
+      img.style.position = "static";
+        img.style.left = "auto";
 
         /* =========================================
            REPLACE OLD PHOTO CONTENT
@@ -1447,69 +1454,7 @@ async function approveApplication(
    REJECT APPLICATION
 ================================================== */
 
-function rejectApplication(
-    applicationId
-) {
-
-    const admissions =
-        getSuryaModule("admissions");
-
-
-    const application =
-        admissions.find(
-            function(app) {
-
-                return (
-                    app.id ===
-                    applicationId
-                );
-
-            }
-        );
-
-
-    if (!application) {
-
-        alert(
-            "Application record not found."
-        );
-
-        return;
-    }
-
-
-    if (
-        application.status !==
-        "Pending"
-    ) {
-
-        alert(
-            "This application has already been processed."
-        );
-
-        return;
-    }
-
-
-    application.status =
-        "Rejected";
-
-
-    updateSuryaModule(
-        "admissions",
-        admissions
-    );
-
-
-    loadApplications();
-
-
-    alert(
-        "❌ Application Rejected."
-    );
-
-}
-
+async function rejectApplication(applicationId){const a=findApplication(applicationId);if(!a){alert("Application record not found.");return}if(a.status!=="Pending"){alert("This application has already been processed.");return}const token=sessionStorage.getItem("SURYA_ADMIN_TOKEN")||"";if(!token){location.replace("admin-login.html");return}const reason=prompt("Reason for rejection:","Application rejected by Admin.");if(reason===null)return;if(!confirm("Reject this application?\n\nApplication ID: "+applicationId))return;try{const r=await fetch(SURYA_DATABASE_API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"rejectApplication",applicationId:applicationId,token:token,reason:reason})});const d=await r.json();if(!d.success)throw Error(d.message||"Rejection failed.");alert("❌ Application rejected.");await loadApplications()}catch(e){alert("❌ "+e.message)}}
 
 /* ==================================================
    VIEW APPLICATION
@@ -1803,340 +1748,13 @@ function closeApplicationView() {
 
 }
 
+async function loadPrivateDocumentInto(c,url,title){if(!c||!url)return;const m=String(url).match(/[?&]id=([^&]+)/)||String(url).match(/\/file\/d\/([^/]+)/);if(!m){c.textContent="❌ File ID not found";return}try{const r=await fetch(SURYA_DATABASE_API+"?action=studentDocument&id="+encodeURIComponent(m[1])+"&token="+encodeURIComponent(sessionStorage.getItem("SURYA_ADMIN_TOKEN")||""));const d=await r.json();if(!d.success||!d.data)throw Error(d.message||"Unable to load document");const b=atob(d.data),u8=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u8[i]=b.charCodeAt(i);const u=URL.createObjectURL(new Blob([u8],{type:d.mimeType||"application/octet-stream"}));c.innerHTML=(d.mimeType||"").startsWith("image/")?'<img src="'+u+'" alt="'+title+'" style="display:block;width:100%;max-height:300px;object-fit:contain">':'<a href="'+u+'" target="_blank" rel="noopener">📄 Open '+title+'</a>'}catch(e){c.innerHTML='<span style="color:#c62828">❌ '+String(e.message||e)+'</span>'}}
+
 /* ==================================================
    VIEW DOCUMENTS
 ================================================== */
 
-function viewDocuments(applicationId) {
-
-    const application =
-        findApplication(
-            applicationId
-        );
-
-
-    if (!application) {
-
-        alert(
-            "Application record not found."
-        );
-
-        return;
-    }
-
-
-    /* ==================================================
-       DOCUMENT URLS
-    ================================================== */
-
-    const photoUrl =
-        application.photo || "";
-
-    const signatureUrl =
-        application.signature || "";
-
-    const marksheetUrl =
-        application.marcsheet || "";
-
-    const aadhaarFrontUrl =
-        application.aadhaarFrontUrl || "";
-
-    const aadhaarBackUrl =
-        application.aadhaarBackUrl || "";
-
-
-    /* ==================================================
-       DOCUMENT CARD
-    ================================================== */
-
-    function documentCard(
-        title,
-        url,
-        type
-    ) {
-
-        if (!url) {
-
-            return `
-                <div
-                    style="
-                        border:1px solid #ddd;
-                        border-radius:8px;
-                        padding:12px;
-                        margin-bottom:12px;
-                        background:#f8f8f8;
-                    "
-                >
-                    <strong>${title}</strong>
-
-                    <p
-                        style="
-                            margin:8px 0 0;
-                            color:#888;
-                        "
-                    >
-                        ❌ Document URL not available
-                    </p>
-                </div>
-            `;
-
-        }
-
-
-        if (type === "image") {
-
-            return `
-                <div
-                    style="
-                        border:1px solid #ddd;
-                        border-radius:8px;
-                        padding:12px;
-                        margin-bottom:12px;
-                    "
-                >
-
-                    <strong>${title}</strong>
-
-                    <img
-                        src="${url}"
-                        alt="${title}"
-                        style="
-                            display:block;
-                            width:100%;
-                            max-height:300px;
-                            object-fit:contain;
-                            margin-top:10px;
-                            border:1px solid #ddd;
-                            border-radius:6px;
-                        "
-                    >
-
-                    <a
-                        href="${url}"
-                        target="_blank"
-                        rel="noopener"
-                        style="
-                            display:block;
-                            margin-top:10px;
-                            text-align:center;
-                            padding:9px;
-                            background:#1565c0;
-                            color:#fff;
-                            text-decoration:none;
-                            border-radius:6px;
-                        "
-                    >
-                        🔗 Open Document
-                    </a>
-
-                </div>
-            `;
-
-        }
-
-
-        return `
-            <div
-                style="
-                    border:1px solid #ddd;
-                    border-radius:8px;
-                    padding:12px;
-                    margin-bottom:12px;
-                "
-            >
-
-                <strong>${title}</strong>
-
-                <a
-                    href="${url}"
-                    target="_blank"
-                    rel="noopener"
-                    style="
-                        display:block;
-                        margin-top:10px;
-                        text-align:center;
-                        padding:9px;
-                        background:#1565c0;
-                        color:#fff;
-                        text-decoration:none;
-                        border-radius:6px;
-                    "
-                >
-                    📄 Open Document
-                </a>
-
-            </div>
-        `;
-
-    }
-
-
-    /* ==================================================
-       CREATE DOCUMENT MODAL
-    ================================================== */
-
-    const modal =
-        document.createElement("div");
-
-
-    modal.id =
-        "applicationDocumentsModal";
-
-
-    modal.style.cssText = `
-        position:fixed;
-        inset:0;
-        background:rgba(0,0,0,0.65);
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        padding:20px;
-        z-index:10000;
-    `;
-
-
-    modal.innerHTML = `
-
-        <div
-            style="
-                background:#fff;
-                width:100%;
-                max-width:500px;
-                max-height:90vh;
-                overflow-y:auto;
-                border-radius:12px;
-                padding:20px;
-                box-sizing:border-box;
-                position:relative;
-            "
-        >
-
-            <button
-                type="button"
-                onclick="closeDocumentsView()"
-                style="
-                    position:absolute;
-                    right:12px;
-                    top:10px;
-                    border:none;
-                    background:#1565c0 !important;
-                    color:#fff !important;
-                    font-size:22px;
-                    cursor:pointer;
-                    border-radius:4px;
-                "
-            >
-                ✖️
-            </button>
-
-
-            <h2
-                style="
-                    text-align:center;
-                    margin-top:5px;
-                "
-            >
-                📄 Student Documents
-            </h2>
-
-
-            <p
-                style="
-                    text-align:center;
-                    color:#666;
-                "
-            >
-                Application ID:
-                <strong>
-                    ${application.id}
-                </strong>
-            </p>
-
-
-            ${documentCard(
-                "📸 Student Photo",
-                photoUrl,
-                "image"
-            )}
-
-
-            ${documentCard(
-                "✍️ Signature",
-                signatureUrl,
-                "image"
-            )}
-
-
-            ${documentCard(
-                "📑 Marksheet",
-                marksheetUrl,
-                "document"
-            )}
-
-
-            ${documentCard(
-                "🪪 Aadhaar Front",
-                aadhaarFrontUrl,
-                "image"
-            )}
-
-
-            ${documentCard(
-                "🪪 Aadhaar Back",
-                aadhaarBackUrl,
-                "image"
-            )}
-
-
-            <button
-                type="button"
-                onclick="closeDocumentsView()"
-                style="
-                    width:100%;
-                    padding:12px;
-                    margin-top:5px;
-                    border:none;
-                    background:#1565c0 !important;
-                    color:#fff !important;
-                    border-radius:6px;
-                    cursor:pointer;
-                "
-            >
-                Close
-            </button>
-
-        </div>
-
-    `;
-
-
-    document.body.appendChild(
-        modal
-    );
-
-
-    /* ==================================================
-       CLOSE OUTSIDE
-    ================================================== */
-
-    modal.addEventListener(
-        "click",
-        function(event) {
-
-            if (
-                event.target ===
-                modal
-            ) {
-
-                closeDocumentsView();
-
-            }
-
-        }
-    );
-
-}
-
+function viewDocuments(applicationId){const a=findApplication(applicationId);if(!a){alert("Application record not found.");return}const docs=[["📸 Student Photo",a.photo],["✍️ Signature",a.signature],["📑 Marksheet",a.marcsheet],["🪪 Aadhaar Front",a.aadhaarFrontUrl],["🪪 Aadhaar Back",a.aadhaarBackUrl]];const m=document.createElement("div");m.id="applicationDocumentsModal";m.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:20px;z-index:10000";m.innerHTML='<div style="background:#fff;width:100%;max-width:520px;max-height:90vh;overflow:auto;border-radius:12px;padding:20px"><h2>📄 Student Documents</h2><p>Application ID: <b>'+a.id+'</b></p>'+docs.map((d,i)=>'<div style="border:1px solid #ddd;border-radius:8px;padding:12px;margin:10px 0"><b>'+d[0]+'</b><div id="private-doc-'+i+'" style="margin-top:8px">'+(d[1]?"⏳ Loading...":"❌ Document URL not available")+'</div></div>').join('')+'<button type="button" onclick="closeDocumentsView()">Close</button></div>';document.body.appendChild(m);docs.forEach((d,i)=>{if(d[1])loadPrivateDocumentInto(document.getElementById("private-doc-"+i),d[1],d[0])});m.onclick=e=>{if(e.target===m)closeDocumentsView()}}
 
 /* ==================================================
    CLOSE DOCUMENTS VIEW

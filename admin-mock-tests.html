@@ -32,6 +32,8 @@
 @media(max-width:700px){.mock-grid{grid-template-columns:1fr}.option-row{grid-template-columns:1fr}}
 </style>
     <link rel="stylesheet" href="AERON/css/aeron.css">
+<script src="assets/js/surya-format.js"></script>
+<link rel="icon" href="assets/images/favicon.ico" sizes="any">
 </head>
 <body>
 <div class="top-bar">📞 <a href="tel:+917084275870">7084275870</a> | ✉️ <a href="mailto:sunilkumar5757@gmail.com">sunilkumar5757@gmail.com</a></div>
@@ -53,6 +55,7 @@
 <input id="duration" type="number" min="1" value="30" placeholder="Duration (minutes)">
 <input id="totalMarks" type="number" min="1" value="100" placeholder="Total marks">
 <select id="status"><option value="Draft">Draft</option><option value="Published">Published</option></select>
+<select id="accessMode"><option value="FREE">FREE — सब students</option><option value="PAID">PAID — payment/verification required</option></select>
 <textarea id="description" rows="3" placeholder="Instructions / description"></textarea>
 </div>
 <div>
@@ -132,7 +135,7 @@ function renderTests(){
  <div class="question-row">
   <b>${esc(t["Test ID"])} — ${esc(t["Title"])}</b>
   <br>📚 ${esc(t["Course"])} &nbsp; | &nbsp; 📖 ${esc(t["Subject Name"])} (${esc(t["Subject ID"])})
-  <br><span class="small">⏱ ${esc(t["Duration"])} min • 📝 ${esc(t["Total Marks"])} marks • ${esc(t["Status"])}</span>
+  <br><span class="small">⏱ ${esc(t["Duration"])} min • 📝 ${esc(t["Total Marks"])} marks • ${esc(t["Status"])} • 🔐 ${esc(t["Access Mode"] || "FREE")}</span>
   <p>${esc(t["Description"])}</p>
   <button class="mock-btn" type="button" onclick='selectTest(${JSON.stringify(t)})'>❓ Questions</button>
   <button class="mock-btn" type="button" onclick='editTest(${JSON.stringify(t)})'>✏️ Edit</button>
@@ -202,17 +205,8 @@ function loadQuestionIntoForm(q){
 }
 async function saveQuestion(q){
  try{
-  await api({action:"saveMockQuestion",question:{
-    questionId:q["Question ID"]||"",
-    testId:selectedTest["Test ID"],
-    question:document.getElementById("qText").value,
-    optionA:document.getElementById("optA").value,
-    optionB:document.getElementById("optB").value,
-    optionC:document.getElementById("optC").value,
-    optionD:document.getElementById("optD").value,
-    correctAnswer:document.getElementById("correct").value,
-    marks:document.getElementById("marks").value
-  }});
+  const saved=await api({action:"saveQuestionBankQuestion",question:{questionId:q["Question ID"]||"",course:selectedTest["Course"],subjectId:selectedTest["Subject ID"],subjectName:selectedTest["Subject Name"],question:document.getElementById("qText").value,optionA:document.getElementById("optA").value,optionB:document.getElementById("optB").value,optionC:document.getElementById("optC").value,optionD:document.getElementById("optD").value,correctAnswer:document.getElementById("correct").value,marks:document.getElementById("marks").value,accessMode:selectedTest["Access Mode"]||"FREE",sourceType:"MANUAL",sourceName:"Mock Test Editor",status:"ACTIVE"}});
+  await api({action:"attachQuestionBankToMock",questionIds:[saved.question["Question ID"]],testId:selectedTest["Test ID"]});
   msg("✅ Question saved.");loadQuestions();
  }catch(e){msg("❌ "+e.message,true);}
 }

@@ -319,6 +319,14 @@
                 </select>
             </div>
 
+            <div class="field">
+                <label for="videoAccessMode">Access Mode</label>
+                <select id="videoAccessMode">
+                    <option value="FREE">FREE — सब students</option>
+                    <option value="PAID">PAID — payment required</option>
+                </select>
+            </div>
+
         </div>
 
 
@@ -443,7 +451,8 @@ async function saveRecordedVideo() {
 
         driveFileId: $("driveFileId").value.trim(),
 
-        status: $("videoStatus").value
+        status: $("videoStatus").value,
+        accessMode: $("videoAccessMode").value
     };
 
 
@@ -704,6 +713,8 @@ function editRecordedVideo(video) {
     $("videoStatus").value =
         video["Status"] || "Draft";
 
+    $("videoAccessMode").value =
+        String(video["Access Mode"] || "FREE").toUpperCase()==="PAID" ? "PAID" : "FREE";
 
     $("msg").textContent =
         "✏️ Edit mode: details बदलकर Save करें.";
@@ -782,6 +793,7 @@ function clearRecordedForm() {
 
     $("videoStatus").value =
         "Draft";
+    $("videoAccessMode").value = "FREE";
 }
 
 

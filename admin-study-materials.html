@@ -125,6 +125,11 @@
             <option value="Published">Published</option>
         </select>
 
+        <select id="materialAccessMode">
+            <option value="FREE">FREE — सब students</option>
+            <option value="PAID">PAID — payment required</option>
+        </select>
+
         <input
             id="materialFile"
             type="file"
@@ -258,6 +263,9 @@ async function saveStudyMaterial() {
 
         status:
             $("materialStatus").value,
+
+        accessMode:
+            $("materialAccessMode").value,
 
         pdf:null,
         fileName:"",
@@ -474,6 +482,9 @@ function editStudyMaterial(m) {
     $("materialStatus").value =
         m.Status || "Draft";
 
+    $("materialAccessMode").value =
+        String(m["Access Mode"] || "FREE").toUpperCase()==="PAID" ? "PAID" : "FREE";
+
     $("materialFile").value = "";
 
     $("msg").textContent =
@@ -518,6 +529,7 @@ function clearStudyForm() {
     $("materialSubject").value = "";
     $("materialDescription").value = "";
     $("materialStatus").value = "Draft";
+    $("materialAccessMode").value = "FREE";
     $("materialFile").value = "";
 }
 

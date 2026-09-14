@@ -35,6 +35,8 @@ Created : 08-08-2026
 
     <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
     <link rel="stylesheet" href="AERON/css/aeron.css">
+<script src="assets/js/surya-format.js"></script>
+<link rel="icon" href="assets/images/favicon.ico" sizes="any">
 </head>
 
 <body>
@@ -370,7 +372,7 @@ async function loadStudentDashboard(){
    document.getElementById("feePaid").textContent=money(f.Paid);
    document.getElementById("feeDue").textContent=money(f.Due);
    document.getElementById("feeStatus").textContent=f.Status||"Not available";
-   document.getElementById("feeHistory").innerHTML=(fd.payments||[]).length ? "<b>Payment History</b><br>"+(fd.payments||[]).map(p=>`${p.receiptNumber||"—"} • ${money(p.amount)} • ${p.mode||""} • ${p.status||""}`).join("<br>") : "No payment history yet.";
+   document.getElementById("feeHistory").innerHTML=(fd.payments||[]).length ? "<b>Payment History</b><br>"+(fd.payments||[]).map(p=>`${p.receiptNumber||"—"} • ${money(p.amount)} • ${p.mode||""} • ${p.status||""} • ${formatSuryaDateTime(p.date)}`).join("<br>") : "No payment history yet.";
   } catch(e) { document.getElementById("feeStatus").textContent="Fee details unavailable"; }
   if(s.Photo)document.getElementById("dashboardStudentPhoto").src=s.Photo;
   if(s.Signature)document.getElementById("studentSignature").src=s.Signature;
