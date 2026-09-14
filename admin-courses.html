@@ -2,7 +2,7 @@
 ==================================================
 Project : SURYA COMPUTER OF EDUCATION CENTER
 File    : admin-courses.html
-Version : v1.0.0
+Version : v1.1.0-FIX1
 Author  : Devendra Kumar
 Guide   : AERON
 Created : 09-08-2026
@@ -131,6 +131,7 @@ Created : 09-08-2026
             id="courseId"
             placeholder="Course ID e.g. ADCA"
             autocomplete="off"
+            required
         >
 
         <input
@@ -138,6 +139,7 @@ Created : 09-08-2026
             id="courseName"
             placeholder="Course Name"
             autocomplete="off"
+            required
         >
 
         <input
@@ -145,18 +147,22 @@ Created : 09-08-2026
             id="courseDuration"
             placeholder="Duration e.g. 6 Months"
             autocomplete="off"
+            required
         >
 
         <input
-            type="number"
+            type="text"
+            inputmode="decimal"
             id="courseFee"
             min="0"
+            required
             placeholder="Course Fee"
             autocomplete="off"
         >
 
         <input
-            type="number"
+            type="text"
+            inputmode="decimal"
             id="fullPaymentDiscount"
             min="0"
             placeholder="Full Payment Discount (optional)"
@@ -164,7 +170,8 @@ Created : 09-08-2026
         >
 
         <input
-            type="number"
+            type="text"
+            inputmode="decimal"
             id="admissionFee"
             min="0"
             placeholder="Admission Fee (optional)"
@@ -188,6 +195,7 @@ Created : 09-08-2026
         </div>
 
         <div id="courseMessage" class="course-message"></div>
+        <small style="display:block;margin-top:6px;opacity:.65">Course Manager build: 2026-09-13-FIX1</small>
     </div>
 
     <div class="course-list">
@@ -331,24 +339,46 @@ function getAdminToken() {
    COURSE MANAGEMENT
 ================================================== */
 
+function courseField_(id) {
+    const el = document.getElementById(id);
+    return el ? String(el.value ?? "").trim() : "";
+}
+
+function courseMoney_(id, optional) {
+    const raw = courseField_(id).replace(/[₹,\s]/g, "");
+    if (raw === "") return optional ? 0 : null;
+    const value = Number(raw);
+    return Number.isFinite(value) && value >= 0 ? value : null;
+}
+
 async function saveCourse() {
     const token = getAdminToken();
-    const courseId = document.getElementById("courseId").value.trim();
-    const courseName = document.getElementById("courseName").value.trim();
-    const duration = document.getElementById("courseDuration").value.trim();
-    const fee = document.getElementById("courseFee").value;
-    const fullPaymentDiscount = document.getElementById("fullPaymentDiscount").value;
-    const admissionFee = document.getElementById("admissionFee").value;
-    const description = document.getElementById("courseDescription").value.trim();
-    const status = document.getElementById("courseStatus").value;
+    const courseId = courseField_("courseId");
+    const courseName = courseField_("courseName");
+    const duration = courseField_("courseDuration");
+    const fee = courseMoney_("courseFee");
+    const fullPaymentDiscount = courseMoney_("fullPaymentDiscount", true);
+    const admissionFee = courseMoney_("admissionFee", true);
+    const description = courseField_("courseDescription");
+    const status = courseField_("courseStatus") || "Active";
     const message = document.getElementById("courseMessage");
 
-    if (!courseId || !courseName || !duration || fee === "" || Number(fee) < 0) {
-        message.textContent = "⚠️ Course ID, Name, Duration and Fee are required.";
+    if (!courseId || !courseName || !duration || fee === null) {
+        message.textContent = "⚠️ Course ID, Name, Duration and a valid Fee are required.";
         return;
     }
 
-    const editing = !!document.getElementById("courseEditId").value;
+    if (fullPaymentDiscount > fee || admissionFee > fee) {
+        message.textContent = "⚠️ Discount/Admission Fee cannot be greater than Course Fee.";
+        return;
+    }
+
+    if (!token) {
+        message.textContent = "❌ Admin session expired. Please login again.";
+        return;
+    }
+
+    const editing = !!courseField_("courseEditId");
     const action = editing ? "updateCourse" : "addCourse";
 
     try {
@@ -357,7 +387,8 @@ async function saveCourse() {
             headers:{"Content-Type":"text/plain;charset=utf-8"},
             body:JSON.stringify({
                 action, token, courseId, courseName, duration,
-                fee:Number(fee), fullPaymentDiscount:Number(fullPaymentDiscount || 0), admissionFee:Number(admissionFee || 0), description, status
+                fee, fullPaymentDiscount:fullPaymentDiscount ?? 0,
+                admissionFee:admissionFee ?? 0, description, status
             })
         });
         const result = await response.json();

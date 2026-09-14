@@ -3,7 +3,7 @@
 ================================================== */
 
 const SURYA_DATABASE_API =
-    "window.SURYA_DATABASE_API + "?v=cert-panel-20260829"";
+    window.SURYA_DATABASE_API + "?v=cert-panel-20260829";
 
 
 /* ==================================================

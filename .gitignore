@@ -1,12 +1,5 @@
-# ============================================================
-# SURYA CIMP — PRIVATE BACKEND
-# NEVER COMMIT OR PUSH
-# ============================================================
-/google-apps-script/
-
-# Local / editor / backup files
-*.backup
-*.bak
-*.old
-*.before
-*.before-*
+google-apps-script/
+*.tar.gz
+1/
+problem/
+ll aapt2 aidl android-tools apksigner d8 -y

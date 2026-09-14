@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-
-<url><loc>https://devendra369369.github.io/surya-computer-website/</loc></url>
-<url><loc>https://devendra369369.github.io/surya-computer-website/about.html</loc></url>
-<url><loc>https://devendra369369.github.io/surya-computer-website/courses.html</loc></url>
-<url><loc>https://devendra369369.github.io/surya-computer-website/admission.html</loc></url>
-<url><loc>https://devendra369369.github.io/surya-computer-website/gallery.html</loc></url>
-<url><loc>https://devendra369369.github.io/surya-computer-website/contact.html</loc></url>
-<url><loc>https://devendra369369.github.io/surya-computer-website/notice.html</loc></url>
-<url><loc>https://devendra369369.github.io/surya-computer-website/faq.html</loc></url>
-<url><loc>https://devendra369369.github.io/surya-computer-website/result.html</loc></url>
-<url><loc>https://devendra369369.github.io/surya-computer-website/certificate-verification.html</loc></url>
-
+  <url><loc>https://suryacomputer-education.github.io/surya-computer-education/</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://suryacomputer-education.github.io/surya-computer-education/about.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://suryacomputer-education.github.io/surya-computer-education/courses.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://suryacomputer-education.github.io/surya-computer-education/admission.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://suryacomputer-education.github.io/surya-computer-education/gallery.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://suryacomputer-education.github.io/surya-computer-education/contact.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://suryacomputer-education.github.io/surya-computer-education/notice.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://suryacomputer-education.github.io/surya-computer-education/faq.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://suryacomputer-education.github.io/surya-computer-education/result.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://suryacomputer-education.github.io/surya-computer-education/certificate.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://suryacomputer-education.github.io/surya-computer-education/digital-library.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://suryacomputer-education.github.io/surya-computer-education/live-classes.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://suryacomputer-education.github.io/surya-computer-education/recorded-classes.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://suryacomputer-education.github.io/surya-computer-education/mock-test.html</loc><changefreq>weekly</changefreq></url>
 </urlset>
