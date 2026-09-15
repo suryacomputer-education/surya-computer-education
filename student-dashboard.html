@@ -88,13 +88,10 @@ STUDENT DASHBOARD
 
 <section class="student-dashboard">
 
-    <div class="dashboard-header">
-
-        <h2>👨‍🎓 Student Dashboard</h2>
-
-        <p>
-            Welcome, <strong id="dashboardStudentName">Loading...</strong>
-        </p>
+        <div id="studentWelcome" class="student-welcome">
+            <strong id="studentWelcomeTitle">🎊 Hello, <span id="dashboardStudentName">Loading...</span>! 🎉</strong>
+            <span id="studentWelcomeSub" class="student-welcome-sub">Welcome to SURYA COMPUTER OF EDUCATION CENTER</span>
+        </div>
 
     </div>
 
@@ -104,16 +101,6 @@ STUDENT DASHBOARD
     <div class="dashboard-card">
 
         <h3>👤 Student Profile</h3>
-        <div style="text-align:center; margin:15px 0;">
-    <h4>✍️ Student Signature</h4>
-
-    <img
-        id="studentSignature"
-        src="assets/images/signature-placeholder.svg"
-        alt="Student Signature"
-        style="max-width:220px; height:80px; object-fit:contain;"
-    >
-        </div>
 
         <div style="text-align:center; margin:15px 0;">
             <img
@@ -124,16 +111,6 @@ STUDENT DASHBOARD
                 onerror="this.src='assets/images/student-placeholder.svg'"
             >
         </div>
-
-        <div style="text-align:center; margin:15px 0;">
-            <img
-                id="studentMarcsheet"
-                src="assets/images/Marcsheet-placeholder.svg"
-                alt="Student Marcsheet"
-                style="width:120px; height:180px; object-fit:contain; border:1px solid #ddd;"
-            >
-        </div>
-
 
         <p>
             <strong>Student Name:</strong>
@@ -149,20 +126,21 @@ STUDENT DASHBOARD
             <strong>Course:</strong>
             <span id="dashboardCourse">Loading...</span>
         </p>
+
         <p>
-    <strong>Mobile:</strong>
-    <span id="dashboardMobile">Loading...</span>
-</p>
+            <strong>Mobile:</strong>
+            <span id="dashboardMobile">Loading...</span>
+        </p>
 
-<p>
-    <strong>Admission Year:</strong>
-    2026
-</p>
+        <p>
+            <strong>Admission Year:</strong>
+            2026
+        </p>
 
-<p>
-    <strong>Course Status:</strong>
-    <span id="dashboardStatus">Loading...</span>
-</p>
+        <p>
+            <strong>Course Status:</strong>
+            <span id="dashboardStatus">Loading...</span>
+        </p>
 
     </div>
 
@@ -349,6 +327,14 @@ async function loadStudentDashboard(){
   document.getElementById("dashboardName").textContent=s["Student Name"]||"N/A";
   document.getElementById("dashboardId").textContent=s["Student ID"]||"N/A";
   document.getElementById("dashboardCourse").textContent=s.Course||"N/A";
+  const welcomeBox=document.getElementById("studentWelcome");
+  const welcomeTitle=document.getElementById("studentWelcomeTitle");
+  const welcomeSub=document.getElementById("studentWelcomeSub");
+  const welcomeKey="SURYA_STUDENT_WELCOMED_"+String(s["Student ID"]||"").trim().toUpperCase();
+  const isFirstLogin=!localStorage.getItem(welcomeKey);
+  if(isFirstLogin){welcomeTitle.innerHTML="🎊 Hello, <span>"+(s["Student Name"]||"Student")+"</span>! 🎉";welcomeSub.textContent="Welcome to SURYA COMPUTER OF EDUCATION CENTER";localStorage.setItem(welcomeKey,"1");}
+  else{welcomeTitle.innerHTML="🎊 Welcome, <span>"+(s["Student Name"]||"Student")+"</span>! 🎉";welcomeSub.classList.add("is-hidden");}
+  setTimeout(()=>welcomeBox.classList.add("is-hidden"),5000);
   document.getElementById("myCourseValue").textContent=s.Course||"N/A";
   document.getElementById("dashboardMobile").textContent=s.Mobile||"N/A";
   document.getElementById("dashboardStatus").textContent=s.Status||"N/A";
@@ -374,8 +360,21 @@ async function loadStudentDashboard(){
    document.getElementById("feeStatus").textContent=f.Status||"Not available";
    document.getElementById("feeHistory").innerHTML=(fd.payments||[]).length ? "<b>Payment History</b><br>"+(fd.payments||[]).map(p=>`${p.receiptNumber||"—"} • ${money(p.amount)} • ${p.mode||""} • ${p.status||""} • ${formatSuryaDateTime(p.date)}`).join("<br>") : "No payment history yet.";
   } catch(e) { document.getElementById("feeStatus").textContent="Fee details unavailable"; }
-  if(s.Photo)document.getElementById("dashboardStudentPhoto").src=s.Photo;
-  if(s.Signature)document.getElementById("studentSignature").src=s.Signature;
+  const studentPhoto = document.getElementById("dashboardStudentPhoto");
+  const photoUrl = String(s.Photo || "").trim();
+
+  if (photoUrl) {
+    studentPhoto.onload = function () {
+      this.style.display = "block";
+    };
+    studentPhoto.onerror = function () {
+      this.src = "assets/images/student-placeholder.svg";
+      this.style.display = "block";
+    };
+    studentPhoto.src = photoUrl;
+  } else {
+    studentPhoto.src = "assets/images/student-placeholder.svg";
+  }
  }catch(e){sessionStorage.clear();alert("❌ "+e.message);location.href="student-login.html";}
 }
 async function changePassword(){const current=prompt("Current password:");if(current===null)return;const next=prompt("New password (8+ characters):");if(next===null)return;try{const d=await studentApi({action:"studentChangePassword",currentPassword:current,newPassword:next});alert(d.message||"Password changed successfully.");}catch(e){alert("❌ "+e.message);}}
