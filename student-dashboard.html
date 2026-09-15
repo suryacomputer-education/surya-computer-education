@@ -88,10 +88,10 @@ STUDENT DASHBOARD
 
 <section class="student-dashboard">
 
-        <div id="studentWelcome" class="student-welcome">
-            <strong id="studentWelcomeTitle">🎊 Hello, <span id="dashboardStudentName">Loading...</span>! 🎉</strong>
-            <span id="studentWelcomeSub" class="student-welcome-sub">Welcome to SURYA COMPUTER OF EDUCATION CENTER</span>
-        </div>
+<div id="studentWelcome" class="student-welcome" role="status" aria-live="polite">
+    <strong id="studentWelcomeTitle">🎊 Hello, <span id="dashboardStudentName">Loading...</span>! 🎉</strong>
+    <span id="studentWelcomeSub" class="student-welcome-sub">Welcome to SURYA COMPUTER OF EDUCATION CENTER</span>
+</div>
 
     </div>
 
@@ -361,18 +361,14 @@ async function loadStudentDashboard(){
    document.getElementById("feeHistory").innerHTML=(fd.payments||[]).length ? "<b>Payment History</b><br>"+(fd.payments||[]).map(p=>`${p.receiptNumber||"—"} • ${money(p.amount)} • ${p.mode||""} • ${p.status||""} • ${formatSuryaDateTime(p.date)}`).join("<br>") : "No payment history yet.";
   } catch(e) { document.getElementById("feeStatus").textContent="Fee details unavailable"; }
   const studentPhoto = document.getElementById("dashboardStudentPhoto");
-  const photoUrl = String(s.Photo || "").trim();
-
-  if (photoUrl) {
-    studentPhoto.onload = function () {
-      this.style.display = "block";
-    };
-    studentPhoto.onerror = function () {
-      this.src = "assets/images/student-placeholder.svg";
-      this.style.display = "block";
-    };
-    studentPhoto.src = photoUrl;
-  } else {
+  try {
+    const pd = await studentApi({action:"studentOwnPhoto"});
+    if (pd && pd.success && pd.data) {
+      studentPhoto.src = "data:" + (pd.mimeType || "image/jpeg") + ";base64," + pd.data;
+    } else {
+      studentPhoto.src = "assets/images/student-placeholder.svg";
+    }
+  } catch (_) {
     studentPhoto.src = "assets/images/student-placeholder.svg";
   }
  }catch(e){sessionStorage.clear();alert("❌ "+e.message);location.href="student-login.html";}

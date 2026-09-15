@@ -146,30 +146,40 @@ html[data-theme="dark"] .top-bar a,html.dark-mode .top-bar a,html.dark .top-bar 
         padding: 7px 10px;
     }
 }
-/* STUDENT TEMPORARY WELCOME */
+/* STUDENT WELCOME TOAST */
 .student-welcome {
+    position: fixed;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 99999;
+    width: min(92vw, 420px);
+    box-sizing: border-box;
+    padding: 11px 16px;
+    border-radius: 12px;
     background: #eaf8ee;
     color: #166534;
     border: 1px solid #bbf7d0;
-    border-radius: 12px;
-    padding: 10px 14px;
-    margin: 10px auto;
-    max-width: 520px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.16);
     text-align: center;
     font-size: 15px;
-    line-height: 1.45;
-    box-sizing: border-box;
+    line-height: 1.4;
 }
 
 .student-welcome strong {
+    display: block;
     font-weight: 700;
 }
 
 .student-welcome-sub {
     display: block;
     margin-top: 3px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
+}
+
+.student-welcome.is-hidden {
+    display: none;
 }
 
 html[data-theme="dark"] .student-welcome,
@@ -181,6 +191,7 @@ body.dark .student-welcome {
     color: #bbf7d0 !important;
     border-color: #28643d !important;
 }
+
 
 .student-welcome.is-hidden {
     display: none;
