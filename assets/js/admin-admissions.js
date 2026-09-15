@@ -1315,6 +1315,20 @@ async function approveApplication(
        CONFIRM APPROVAL
     ========================================= */
 
+    const currentApp = findApplication(applicationId);
+    const pendingPayment = currentApp && String(currentApp.paymentStatus || "").toUpperCase() !== "VERIFIED_SUCCESS" && Number(currentApp.admissionFee || 0) > 0;
+    if (pendingPayment) {
+        const method = String(currentApp.paymentMethod || "").toUpperCase();
+        if (method === "UPI") {
+            alert("पहले Fees → Pending UPI Verification में इस application का payment VERIFY करें. उसके बाद Approve करें.\n\nApplication ID: " + applicationId);
+        } else if (method === "CASH") {
+            alert("पहले Cash payment VERIFY करें. Approval उसके बाद होगा.\n\nApplication ID: " + applicationId);
+        } else {
+            alert("Admission fee अभी verified नहीं है. पहले payment verify करें.\n\nApplication ID: " + applicationId);
+        }
+        return;
+    }
+
     const confirmed =
         confirm(
             "Approve this application?\n\n" +
