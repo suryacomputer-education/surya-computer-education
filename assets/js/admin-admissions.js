@@ -634,7 +634,7 @@ const photoHTML = `
 
             ${application.status === "Pending" && String(application.paymentMethod || "").toLowerCase() === "cash" && String(application.paymentStatus || "").toUpperCase() !== "VERIFIED_SUCCESS" ? `
             <button class="approve-btn" type="button" onclick="verifyCashAndApprove('${application.id}', ${Number(application.admissionFee || 0)})">💵 Verify Cash & Approve</button>` : ""}
-            ${application.status === "Pending" && String(application.paymentMethod || "").toUpperCase() === "UPI" && String(application.paymentStatus || "").toUpperCase() !== "VERIFIED_SUCCESS" ? `<a class="view-btn" href="admin-fees.html#upiPending" style="text-decoration:none;display:inline-block">💳 Verify UPI in Fees</a>` : ""}
+            ${application.status === "Pending" && String(application.paymentMethod || "").toUpperCase() === "UPI" && String(application.paymentStatus || "").toUpperCase() !== "VERIFIED_SUCCESS" ? `<a class="view-btn" href="admin-fees.html#upiPending" style="text-decoration:none;display:inline-block">💳 Verify UPI & Continue</a>` : ""}
 
             <button
                 class="approve-btn"
@@ -727,11 +727,8 @@ async function loadPrivateStudentPhoto(
 
 
         if (!adminToken) {
-
-            console.error(
-                "ADMIN TOKEN NOT FOUND"
-            );
-
+            const pc=card.querySelector(".student-photo-container");
+            if(pc) pc.innerHTML="<img src=\""+photoUrl.replace(/\"/g,"&quot;")+"\" alt=\"Student Photo\" style=\"width:100%;height:100%;object-fit:cover;border-radius:50%;\"><a target=\"_blank\" rel=\"noopener\" href=\""+photoUrl.replace(/\"/g,"&quot;")+"\">Open original</a>";
             return;
         }
 
@@ -764,16 +761,9 @@ async function loadPrivateStudentPhoto(
         });
 
 
-        if (
-            !result.success ||
-            !result.data
-        ) {
-
-            console.error(
-                "PRIVATE PHOTO LOAD FAILED:",
-                result.message
-            );
-
+        if (!result.success || !result.data) {
+            const photoContainer=card.querySelector(".student-photo-container");
+            if(photoContainer) photoContainer.innerHTML="<img src=\""+photoUrl.replace(/\"/g,"&quot;")+"\" alt=\"Student Photo\" style=\"width:100%;height:100%;object-fit:cover;border-radius:50%;\"><a target=\"_blank\" rel=\"noopener\" href=\""+photoUrl.replace(/\"/g,"&quot;")+"\">Open</a>";
             return;
         }
 
@@ -936,11 +926,8 @@ async function loadPrivateViewPhoto(
 
 
         if (!adminToken) {
-
-            console.error(
-                "ADMIN TOKEN NOT FOUND"
-            );
-
+            const pc=modal.querySelector("#view-student-photo");
+            if(pc) pc.innerHTML="<img src=\""+photoUrl.replace(/\"/g,"&quot;")+"\" alt=\"Student Photo\" style=\"display:block;width:100%;max-height:320px;object-fit:contain;\"><a target=\"_blank\" rel=\"noopener\" href=\""+photoUrl.replace(/\"/g,"&quot;")+"\">Open original photo</a>";
             return;
         }
 
@@ -973,19 +960,11 @@ async function loadPrivateViewPhoto(
         });
 
 
-        if (
-            !result.success ||
-            !result.data
-        ) {
-
-            console.error(
-                "VIEW PHOTO LOAD FAILED:",
-                result.message
-            );
-
+        if (!result.success || !result.data) {
+            const photoContainer=modal.querySelector("#view-student-photo");
+            if(photoContainer) photoContainer.innerHTML="<img src=\""+photoUrl.replace(/\"/g,"&quot;")+"\" alt=\"Student Photo\" style=\"display:block;width:100%;max-height:320px;object-fit:contain;\"><a target=\"_blank\" rel=\"noopener\" href=\""+photoUrl.replace(/\"/g,"&quot;")+"\">Open original photo</a>";
             return;
         }
-
 
         /* =========================================
            FIND VIEW PHOTO CONTAINER
@@ -1762,7 +1741,23 @@ function closeApplicationView() {
 
 }
 
-async function loadPrivateDocumentInto(c,url,title){if(!c||!url)return;const m=String(url).match(/[?&]id=([^&]+)/)||String(url).match(/\/file\/d\/([^/]+)/);if(!m){c.textContent="❌ File ID not found";return}try{const r=await fetch(SURYA_DATABASE_API+"?action=studentDocument&id="+encodeURIComponent(m[1])+"&token="+encodeURIComponent(sessionStorage.getItem("SURYA_ADMIN_TOKEN")||""));const d=await r.json();if(!d.success||!d.data)throw Error(d.message||"Unable to load document");const b=atob(d.data),u8=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u8[i]=b.charCodeAt(i);const u=URL.createObjectURL(new Blob([u8],{type:d.mimeType||"application/octet-stream"}));c.innerHTML=(d.mimeType||"").startsWith("image/")?'<img src="'+u+'" alt="'+title+'" style="display:block;width:100%;max-height:300px;object-fit:contain">':'<a href="'+u+'" target="_blank" rel="noopener">📄 Open '+title+'</a>'}catch(e){c.innerHTML='<span style="color:#c62828">❌ '+String(e.message||e)+'</span>'}}
+async function loadPrivateDocumentInto(c,url,title){
+    if(!c||!url)return;
+    const raw=String(url);
+    const m=raw.match(/[?&]id=([^&]+)/)||raw.match(/\/file\/d\/([^/]+)/);
+    if(!m){c.innerHTML='<a href="'+raw.replace(/&/g,"&amp;")+'" target="_blank" rel="noopener">📄 Open '+title+'</a>';return;}
+    try{
+        const r=await fetch(SURYA_DATABASE_API+"?action=studentDocument&id="+encodeURIComponent(m[1])+"&token="+encodeURIComponent(sessionStorage.getItem("SURYA_ADMIN_TOKEN")||""));
+        const d=await r.json();
+        if(!d.success||!d.data)throw Error(d.message||"Unable to load document");
+        const b=atob(d.data),u8=new Uint8Array(b.length);
+        for(let i=0;i<b.length;i++)u8[i]=b.charCodeAt(i);
+        const u=URL.createObjectURL(new Blob([u8],{type:d.mimeType||"application/octet-stream"}));
+        c.innerHTML=(d.mimeType||"").startsWith("image/")?'<img src="'+u+'" alt="'+title+'" style="display:block;width:100%;max-height:300px;object-fit:contain">':'<a href="'+u+'" target="_blank" rel="noopener">📄 Open '+title+'</a>';
+    }catch(e){
+        c.innerHTML='<span style="color:#c62828">⚠️ Private preview unavailable.</span> <a href="'+raw.replace(/&/g,"&amp;")+'" target="_blank" rel="noopener">Open '+title+'</a>';
+    }
+}
 
 /* ==================================================
    VIEW DOCUMENTS

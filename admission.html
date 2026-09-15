@@ -640,11 +640,10 @@ studentPhotoInput.addEventListener(
 
         try {
 
-            studentPhotoData =
-                await compressStudentPhoto(file);
+            const newPhotoData = await compressStudentPhoto(file);
+            studentPhotoData = newPhotoData;
 
-            photoPreview.src =
-                studentPhotoData;
+            photoPreview.src = studentPhotoData;
 
             photoPreviewContainer.style.display =
                 "block";
@@ -1166,9 +1165,10 @@ window.location.href =
 
             alert(
                 "❌ Admission submission status could not be confirmed.\n\n" +
-                "IMPORTANT: Please DO NOT press Submit again.\n\n" +
                 "Check the admin panel / Google Sheet before trying again."
             );
+            admissionSubmitting = false;
+            if (submitAdmissionBtn) { submitAdmissionBtn.disabled = false; submitAdmissionBtn.textContent = "Submit Admission"; }
 
         }
 

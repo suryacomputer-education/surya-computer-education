@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://suryacomputer-education.github.io/surya-computer-education/sitemap.xml
+Sitemap: https://suryacomputer-education.github.io/sitemap.xml
