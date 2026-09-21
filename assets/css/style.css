@@ -1879,3 +1879,18 @@ body.gallery-viewer-open{overflow:hidden;}
   .gallery-prev{left:8px;}
   .gallery-next{right:8px;}
 }
+
+/* =========================================================
+   ATTENDANCE BUTTONS — MOBILE LAYOUT FIX
+   Only the two Attendance actions are affected.
+   ========================================================= */
+@media (max-width:700px){
+    .admin-card a.admin-btn[href="admin-attendance.html"],
+    .admin-card a.admin-btn[href="admin-face-attendance.html"]{
+        display:block !important;
+        width:100% !important;
+        box-sizing:border-box;
+        margin-top:12px;
+        text-decoration:none;
+    }
+}

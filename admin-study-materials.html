@@ -106,15 +106,85 @@
             placeholder="PDF title"
         >
 
-        <input
-            id="materialCourse"
-            placeholder="Course (blank = all)"
-        >
+        <div style="grid-column:1/-1">
 
-        <input
-            id="materialSubject"
-            placeholder="Subject"
-        >
+    <label style="display:block;font-weight:600;margin-bottom:8px">
+        👥 Target Audience
+    </label>
+
+    <div style="display:flex;gap:16px;flex-wrap:wrap">
+
+        <label>
+            <input
+                type="radio"
+                name="materialAudience"
+                value="COMPUTER"
+                checked
+                onchange="updateMaterialAudienceUI()"
+            >
+            💻 Computer Students
+        </label>
+
+        <label>
+            <input
+                type="radio"
+                name="materialAudience"
+                value="LIBRARY"
+                onchange="updateMaterialAudienceUI()"
+            >
+            📚 Library Students
+        </label>
+
+        <label>
+            <input
+                type="radio"
+                name="materialAudience"
+                value="BOTH"
+                onchange="updateMaterialAudienceUI()"
+            >
+            💻📚 Both
+        </label>
+
+    </div>
+
+</div>
+
+<div
+    id="materialTargetBox"
+    style="grid-column:1/-1"
+>
+
+    <label
+        style="display:block;font-weight:600;margin-bottom:8px"
+    >
+        🎓 Target Courses & Subjects
+    </label>
+
+    <div
+        id="materialTargetMappings"
+        style="display:flex;flex-direction:column;gap:10px"
+    ></div>
+
+    <button
+        type="button"
+        class="btn"
+        onclick="addMaterialTargetMapping()"
+    >
+        ➕ Add Course
+    </button>
+
+</div>
+
+<!-- Legacy fields: temporarily kept hidden for backward compatibility -->
+<input
+    id="materialCourse"
+    type="hidden"
+>
+
+<input
+    id="materialSubject"
+    type="hidden"
+>
 
         <textarea
             id="materialDescription"
@@ -180,6 +250,233 @@ if (auth !== "true" || !token) {
 
 const $ = id =>
     document.getElementById(id);
+  let studySubjects = [];
+
+let materialTargetMappings = [];
+
+function getMaterialAudience() {
+
+    const selected =
+        document.querySelector(
+            'input[name="materialAudience"]:checked'
+        );
+
+    return selected
+        ? selected.value
+        : "COMPUTER";
+}
+
+function updateMaterialAudienceUI() {
+
+    const audience =
+        getMaterialAudience();
+
+    const box =
+        $("materialTargetBox");
+
+    if (!box) {
+        return;
+    }
+
+    box.style.display =
+        audience === "LIBRARY"
+            ? "none"
+            : "block";
+}
+
+function addMaterialTargetMapping(
+    existingCourse = "",
+    existingSubjects = []
+) {
+
+    const container =
+        $("materialTargetMappings");
+
+    if (!container) {
+        return;
+    }
+
+    const row =
+        document.createElement("div");
+
+    row.className =
+        "material-target-row";
+
+    row.style.display = "grid";
+    row.style.gridTemplateColumns =
+        "1fr 1fr auto";
+    row.style.gap = "10px";
+    row.style.alignItems = "start";
+
+    row.innerHTML = `
+
+        <select class="material-target-course">
+            <option value="">Select Course</option>
+        </select>
+
+        <select
+            class="material-target-subjects"
+            multiple
+            size="4"
+        >
+            <option value="">
+                Select Course first
+            </option>
+        </select>
+
+        <button
+            type="button"
+            class="btn"
+            onclick="this.parentElement.remove()"
+        >
+            🗑️
+        </button>
+
+    `;
+
+    container.appendChild(row);
+
+    const courseSelect =
+        row.querySelector(
+            ".material-target-course"
+        );
+
+    const subjectSelect =
+        row.querySelector(
+            ".material-target-subjects"
+        );
+
+    fillMaterialTargetCourses(
+        courseSelect,
+        existingCourse
+    );
+
+    courseSelect.addEventListener(
+        "change",
+        function() {
+
+            fillMaterialTargetSubjects(
+                courseSelect,
+                subjectSelect
+            );
+
+        }
+    );
+
+    if (existingCourse) {
+
+        fillMaterialTargetSubjects(
+            courseSelect,
+            subjectSelect,
+            existingSubjects
+        );
+
+    }
+}
+
+function fillMaterialTargetCourses(
+    select,
+    selectedCourse = ""
+) {
+
+    const courses = [
+        ...new Set(
+            studySubjects
+                .map(x =>
+                    String(
+                        x.course ||
+                        x.Course ||
+                        ""
+                    ).trim()
+                )
+                .filter(Boolean)
+        )
+    ];
+
+    select.innerHTML =
+        '<option value="">Select Course</option>' +
+        courses.map(course =>
+            `<option value="${esc(course)}"${
+                String(course).toLowerCase() ===
+                String(selectedCourse).toLowerCase()
+                    ? " selected"
+                    : ""
+            }>${esc(course)}</option>`
+        ).join("");
+
+}
+
+function fillMaterialTargetSubjects(
+    courseSelect,
+    subjectSelect,
+    selectedSubjects = []
+) {
+
+    const course =
+        String(
+            courseSelect.value || ""
+        ).trim().toLowerCase();
+
+    const selected =
+        new Set(
+            (selectedSubjects || [])
+                .map(x =>
+                    String(x)
+                        .trim()
+                        .toLowerCase()
+                )
+        );
+
+    if (!course) {
+
+        subjectSelect.innerHTML =
+            '<option value="">Select Course first</option>';
+
+        return;
+    }
+
+    const subjects =
+        studySubjects.filter(x =>
+            String(
+                x.course ||
+                x.Course ||
+                ""
+            )
+                .trim()
+                .toLowerCase() === course
+        );
+
+    subjectSelect.innerHTML =
+        subjects.map(x => {
+
+            const id =
+                String(
+                    x.subjectId ||
+                    x["Subject ID"] ||
+                    ""
+                ).trim();
+
+            const name =
+                String(
+                    x.subjectName ||
+                    x["Subject Name"] ||
+                    id
+                ).trim();
+
+            return `
+                <option
+                    value="${esc(id)}"
+                    ${selected.has(id.toLowerCase())
+                        ? "selected"
+                        : ""}
+                >
+                    ${esc(id)} — ${esc(name)}
+                </option>
+            `;
+
+        }).join("");
+
+}
 
 function esc(v) {
     return String(v ?? "").replace(
@@ -218,6 +515,69 @@ async function api(body) {
 
     return d;
 }
+async function api(body) {
+
+    const r = await fetch(API, {
+        method:"POST",
+        headers:{
+            "Content-Type":
+                "text/plain;charset=utf-8"
+        },
+        body:JSON.stringify({
+            ...body,
+            token
+        })
+    });
+
+    const d = await r.json();
+
+    if (!d.success) {
+        throw new Error(
+            d.message || "Request failed."
+        );
+    }
+
+    return d;
+}
+  
+async function loadStudySubjects() {
+
+    try {
+
+        const d = await api({
+            action: "courseSubjects"
+        });
+
+        studySubjects =
+            d.subjects ||
+            d.courseSubjects ||
+            [];
+
+        updateMaterialAudienceUI();
+
+        const container =
+            $("materialTargetMappings");
+
+        if (
+            container &&
+            !container.children.length &&
+            getMaterialAudience() !== "LIBRARY"
+        ) {
+            addMaterialTargetMapping();
+        }
+
+    } catch (e) {
+
+        console.error(
+            "Course Subjects load failed:",
+            e
+        );
+
+        $("msg").textContent =
+            "❌ Course/Subject list load नहीं हुई: " +
+            e.message;
+    }
+}
 
 function readFileAsDataURL(file) {
 
@@ -244,6 +604,52 @@ async function saveStudyMaterial() {
 
     const file =
         $("materialFile").files[0];
+    const audience =
+    getMaterialAudience();
+
+const targetCourseSubjects = [];
+
+if (audience !== "LIBRARY") {
+
+    document
+        .querySelectorAll(".material-target-row")
+        .forEach(function(row) {
+
+            const courseSelect =
+                row.querySelector(
+                    ".material-target-course"
+                );
+
+            const subjectSelect =
+                row.querySelector(
+                    ".material-target-subjects"
+                );
+
+            const course =
+                String(
+                    courseSelect?.value || ""
+                ).trim();
+
+            const subjects =
+                Array.from(
+                    subjectSelect?.selectedOptions || []
+                )
+                .map(function(option) {
+                    return String(
+                        option.value || ""
+                    ).trim();
+                })
+                .filter(Boolean);
+
+            if (course) {
+                targetCourseSubjects.push({
+                    course: course,
+                    subjects: subjects
+                });
+            }
+
+        });
+}
 
     const data = {
 
@@ -267,6 +673,11 @@ async function saveStudyMaterial() {
 
         accessMode:
             $("materialAccessMode").value,
+        audience:
+    audience,
+
+targetCourseSubjects:
+    targetCourseSubjects,
 
         pdf:null,
         fileName:"",
@@ -393,6 +804,93 @@ async function loadStudyMaterials() {
                 const description =
                     esc(m.Description || "");
 
+                const audience =
+                    String(
+                        m.Audience || "COMPUTER"
+                    )
+                    .trim()
+                    .toUpperCase();
+
+                const audienceLabel =
+                    audience === "LIBRARY"
+                        ? "📚 Library Students"
+                        : audience === "BOTH"
+                            ? "💻📚 Computer + Library Students"
+                            : "💻 Computer Students";
+
+                let targetMappings = [];
+
+                try {
+
+                    const raw =
+                        m["Target Course Subjects"];
+
+                    if (raw) {
+
+                        targetMappings =
+                            typeof raw === "string"
+                                ? JSON.parse(raw)
+                                : raw;
+
+                    }
+
+                } catch (e) {
+
+                    targetMappings = [];
+
+                }
+
+                let targetText = "";
+
+                if (
+                    Array.isArray(targetMappings) &&
+                    targetMappings.length
+                ) {
+
+                    targetText =
+                        targetMappings.map(item => {
+
+                            const c =
+                                String(
+                                    item.course || ""
+                                ).trim();
+
+                            const subjects =
+                                Array.isArray(item.subjects)
+                                    ? item.subjects
+                                    : [];
+
+                            return (
+                                esc(c) +
+                                (
+                                    subjects.length
+                                        ? " → " +
+                                          subjects
+                                            .map(s => esc(s))
+                                            .join(", ")
+                                        : ""
+                                )
+                            );
+
+                        }).join("<br>");
+
+                } else if (audience === "LIBRARY") {
+
+                    targetText =
+                        "📚 Library only";
+
+                } else {
+
+                    targetText =
+                        esc(course) +
+                        (
+                            subject !== "—"
+                                ? " → " + esc(subject)
+                                : ""
+                        );
+
+                }
+
                 const url =
                     m["File ID"]
                     ? "https://drive.google.com/file/d/" +
@@ -409,10 +907,13 @@ async function loadStudyMaterials() {
                     — <strong>${title}</strong>
 
                     <br>
-                    🎓 Course: ${course}
+                    👥 Audience:
+                    <strong>${audienceLabel}</strong>
 
                     <br>
-                    📖 Subject: ${subject}
+                    🎓 Target Course / Subject:
+                    <br>
+                    ${targetText}
 
                     <br>
                     🔘 Status: ${status}
@@ -484,7 +985,86 @@ function editStudyMaterial(m) {
         m.Status || "Draft";
 
     $("materialAccessMode").value =
-        String(m["Access Mode"] || "FREE").toUpperCase()==="PAID" ? "PAID" : "FREE";
+        String(
+            m["Access Mode"] || "FREE"
+        ).toUpperCase() === "PAID"
+            ? "PAID"
+            : "FREE";
+
+    const audience =
+        String(
+            m.Audience || "COMPUTER"
+        ).toUpperCase();
+
+    const audienceRadio =
+        document.querySelector(
+            'input[name="materialAudience"][value="' +
+            audience +
+            '"]'
+        );
+
+    if (audienceRadio) {
+        audienceRadio.checked = true;
+    }
+
+    updateMaterialAudienceUI();
+
+    const container =
+        $("materialTargetMappings");
+
+    container.innerHTML = "";
+
+    let mappings = [];
+
+    try {
+
+        const raw =
+            m["Target Course Subjects"];
+
+        if (raw) {
+            mappings =
+                typeof raw === "string"
+                    ? JSON.parse(raw)
+                    : raw;
+        }
+
+    } catch (e) {
+
+        console.warn(
+            "Target mapping parse failed:",
+            e
+        );
+
+        mappings = [];
+    }
+
+    if (
+        audience !== "LIBRARY" &&
+        Array.isArray(mappings) &&
+        mappings.length
+    ) {
+
+        mappings.forEach(function(item) {
+
+            addMaterialTargetMapping(
+                item.course || "",
+                Array.isArray(item.subjects)
+                    ? item.subjects
+                    : []
+            );
+
+        });
+
+    } else if (audience !== "LIBRARY") {
+
+        addMaterialTargetMapping(
+            m.Course || "",
+            m.Subject
+                ? [m.Subject]
+                : []
+        );
+
+    }
 
     $("materialFile").value = "";
 
@@ -526,15 +1106,44 @@ function clearStudyForm() {
 
     $("materialId").value = "";
     $("materialTitle").value = "";
+
     $("materialCourse").value = "";
     $("materialSubject").value = "";
+
     $("materialDescription").value = "";
-    $("materialStatus").value = "Draft";
-    $("materialAccessMode").value = "FREE";
+
+    $("materialStatus").value =
+        "Draft";
+
+    $("materialAccessMode").value =
+        "FREE";
+
     $("materialFile").value = "";
+
+    const computerRadio =
+        document.querySelector(
+            'input[name="materialAudience"][value="COMPUTER"]'
+        );
+
+    if (computerRadio) {
+        computerRadio.checked = true;
+    }
+
+    updateMaterialAudienceUI();
+
+    const container =
+        $("materialTargetMappings");
+
+    if (container) {
+        container.innerHTML = "";
+        addMaterialTargetMapping();
+    }
+
+    $("msg").textContent = "";
 }
 
 loadStudyMaterials();
+loadStudySubjects();
 
 </script>
 
