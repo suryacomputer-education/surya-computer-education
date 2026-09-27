@@ -65,6 +65,12 @@
   <option value="BOTH" selected>💻📚 Both</option>
 </select>
 
+<label>Exam Type</label>
+<select id="examType">
+  <option value="MOCK" selected>📝 Mock Test</option>
+  <option value="CBT">🖥️ Official CBT</option>
+</select>
+
 <!-- Legacy field: old MockTests compatibility -->
 <select id="libraryAccess" style="display:none">
   <option value="YES">YES</option>
@@ -161,7 +167,7 @@ function renderTests(){
  <div class="question-row">
   <b>${esc(t["Test ID"])} — ${esc(t["Title"])}</b>
   <br>📚 ${esc(t["Course"])} &nbsp; | &nbsp; 📖 ${esc(t["Subject Name"])} (${esc(t["Subject ID"])})
-  <br><span class="small">⏱ ${esc(t["Duration"])} min • 📝 ${esc(t["Total Marks"])} marks • ${esc(t["Status"])} • 🔐 ${esc(t["Access Mode"] || "FREE")} • 📚 Library: ${esc(t["Library Access"] || "YES")}</span>
+  <br><span class="small">⏱ ${esc(t["Duration"])} min • 📝 ${esc(t["Total Marks"])} marks • ${esc(t["Status"])} • 🔐 ${esc(t["Access Mode"] || "FREE")} • 🎯 ${esc(t["Exam Type"] || "MOCK")} • 📚 Library: ${esc(t["Library Access"] || "YES")}</span>
   <p>${esc(t["Description"])}</p>
   <button class="mock-btn" type="button" onclick='selectTest(${JSON.stringify(t).replace(/'/g, '\\u0027')})'>❓ Questions</button>
   <button class="mock-btn" type="button" onclick='editTest(${JSON.stringify(t).replace(/'/g, '\\u0027')})'>✏️ Edit</button>
@@ -186,6 +192,10 @@ document.getElementById("audience").value=
   ["COMPUTER","LIBRARY","BOTH"].indexOf(audienceValue)>=0
     ? audienceValue
     : (String(t["Library Access"]||"YES").toUpperCase()==="NO" ? "COMPUTER" : "BOTH");
+
+const examTypeValue=String(t["Exam Type"]||"MOCK").trim().toUpperCase();
+document.getElementById("examType").value=
+  examTypeValue==="CBT" ? "CBT" : "MOCK";
  window.scrollTo({top:0,behavior:"smooth"});
 }
 function clearForm(){
@@ -195,6 +205,7 @@ function clearForm(){
  document.getElementById("status").value="Draft";
 document.getElementById("accessMode").value="FREE";
 document.getElementById("audience").value="BOTH";
+document.getElementById("examType").value="MOCK";
 document.getElementById("libraryAccess").value="YES";
 }
 
@@ -209,12 +220,13 @@ async function saveTest(){
   const statusValue=document.getElementById("status").value;
   const descriptionValue=document.getElementById("description").value.trim();
   const audienceValue=document.getElementById("audience").value;
+  const examTypeValue=document.getElementById("examType").value;
   if(!titleValue) throw new Error("Test title is required.");
 
 if(audienceValue!=="LIBRARY" && (!courseValue || !subjectValue)){
   throw new Error("Course and Subject are required for Computer/Both tests.");
 }
-  await api({action:"saveMockTest",test:{testId:testIdValue,title:titleValue,course:courseValue,subjectId:subjectValue,duration:durationValue,totalMarks:totalMarksValue,status:statusValue,accessMode:document.getElementById("accessMode").value,libraryAccess:document.getElementById("libraryAccess").value,audience:audienceValue,description:descriptionValue}});
+  await api({action:"saveMockTest",test:{testId:testIdValue,title:titleValue,course:courseValue,subjectId:subjectValue,duration:durationValue,totalMarks:totalMarksValue,status:statusValue,accessMode:document.getElementById("accessMode").value,libraryAccess:document.getElementById("libraryAccess").value,audience:audienceValue,examType:examTypeValue,description:descriptionValue}});
   msg("✅ Subject-wise CBT test saved.");clearForm();const d=await api({action:"mockTests"});allTests=d.tests||[];renderTests();
  }catch(e){msg("❌ "+e.message,true);}
 }

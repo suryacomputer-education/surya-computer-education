@@ -11,4 +11,4 @@
  */
 
 window.SURYA_DATABASE_API =
-  "https://script.google.com/macros/s/AKfycbwWlq5GOnKgt3KTvUHhKJzTJuCfogLnTLseKanfiiQd_ZptkxYsz4gl8kHV-bexC_s/exec";
+  "https://script.google.com/macros/s/AKfycbzjwBRmF1gPz-J9285RXnwpLBZPcYoWzjjblIVtbgZLb8XneqlYl4YTS3WvCwOlbok/exec";

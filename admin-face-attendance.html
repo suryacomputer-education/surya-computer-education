@@ -108,8 +108,17 @@ async function loadCourses(){
  }catch(e){status(document.getElementById("actionStatus"),"❌ Courses load नहीं हुए: "+e.message,"bad");}
 }
 async function loadProfiles(){
- try{profiles=(await api({action:"faceProfiles"})).profiles||[];renderProfiles();}
- catch(e){document.getElementById("profileList").textContent="❌ "+e.message;}
+ try{
+  const d=await api({action:"faceProfiles"});
+  profiles=Array.isArray(d.profiles)?d.profiles.map(p=>({
+   ...p,
+   descriptor:typeof p.descriptor==='string'?JSON.parse(p.descriptor):Array.isArray(p.descriptor)?p.descriptor:[]
+  })):[];
+  renderProfiles();
+ }catch(e){
+  profiles=[];
+  document.getElementById("profileList").textContent="❌ "+e.message;
+ }
 }
 function renderProfiles(){
  if(!profiles.length){document.getElementById("profileList").innerHTML="<p>No face profiles registered yet.</p>";return;}
@@ -124,14 +133,15 @@ async function disableProfile(id){
 }
 async function loadToday(){
  const course=document.getElementById("course").value;
+ if(!course){document.getElementById("todayList").innerHTML="<p>Select a course first.</p>";return;}
  try{
   const d=await api({action:"attendanceStudents",course,date:indiaDate()});
-  const a=d.students||[];
+  const a=Array.isArray(d.students)?d.students:[];
   document.getElementById("todayList").innerHTML=a.length?
    "<table><thead><tr><th>Student ID</th><th>Name</th><th>Course</th><th>Status</th></tr></thead><tbody>"+
-   a.map(x=>`<tr><td>${esc(x.studentId)}</td><td>${esc(x.studentName)}</td><td>${esc(x.course)}</td><td>${esc(x.status||"NOT MARKED")}</td></tr>`).join("")+
-   "</tbody></table>":"<p>No students found.</p>";
- }catch(e){document.getElementById("todayList").textContent="❌ "+e.message;}
+   a.map(x=>{const st=x.status||"NOT MARKED";return `<tr><td>${esc(x.studentId)}</td><td>${esc(x.studentName)}</td><td>${esc(x.course)}</td><td><span class="${st==='PRESENT'?'pill':'warn'} pill">${esc(st)}</span></td></tr>`}).join("")+
+   "</tbody></table>":"<p>No students found for this course.</p>";
+ }catch(e){document.getElementById("todayList").innerHTML="❌ <small>"+esc(e.message)+"</small>";}
 }
 async function startCamera(){
  if(!modelsReady){status(document.getElementById("liveStatus"),"⏳ Face AI अभी ready नहीं है.","warn");return;}
@@ -218,14 +228,17 @@ async function beginAttendance(){
   if(!liveDescriptor) throw new Error("Liveness challenge failed/timeout. फिर से try करें.");
   const d=await detect(), q=Array.from(d.descriptor);
   if(faceDistance(liveDescriptor,q)>.55) throw new Error("Liveness के बाद face बदल गया. फिर से try करें.");
-  if(!profiles.length) await loadProfiles();
-  const courseProfiles=profiles.filter(p=>String(p.course).trim()===course);
+  if(!profiles||!profiles.length) await loadProfiles();
+  if(!Array.isArray(profiles)) profiles=[];
+  const courseProfiles=(profiles||[]).filter(p=>p&&String(p.course).trim()===course);
   let best=null;
   for(const p of courseProfiles){
-   if(!Array.isArray(p.descriptor)||p.descriptor.length!==q.length)continue;
-   let sum=0;for(let i=0;i<q.length;i++){const x=q[i]-Number(p.descriptor[i]);sum+=x*x;}
-   const dist=Math.sqrt(sum);
-   if(!best||dist<best.dist)best={p,dist};
+   if(!p.descriptor||!Array.isArray(p.descriptor)||p.descriptor.length!==q.length)continue;
+   try{
+    let sum=0;for(let i=0;i<Math.min(q.length,p.descriptor.length);i++){const x=Number(q[i]||0)-Number(p.descriptor[i]||0);sum+=x*x;}
+    const dist=Math.sqrt(sum);
+    if(!best||dist<best.dist)best={p,dist};
+   }catch(e){continue;}
   }
   if(!best)throw new Error("इस course के लिए face profile नहीं मिला.");
   if(best.dist>.50)throw new Error("Face match नहीं हुआ. Best distance: "+best.dist.toFixed(3));

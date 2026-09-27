@@ -20,7 +20,7 @@
     <meta property="og:description" content="Computer mock tests and practice tests for SURYA COMPUTER students, including course-based exam preparation.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://suryacomputer-education.github.io/surya-computer-education/mock-test.html">
-    <meta property="og:image" content="https://suryacomputer-education.github.io/surya-computer-education/assets/images/favicon-512.png">
+    <meta property="og:image" content="assets/images/favicon-512.png">
 
 
 <link rel="stylesheet" href="assets/css/style.css">
@@ -423,8 +423,8 @@ body{
 ========================= -->
 
 <div id="auth" class="card" style="display:none;">
-    <h2>🔐 Student Login Required</h2>
-    <p>Mock Test देने के लिए पहले Student Login करें।</p>
+    <h2 id="authTitle">🔐 Student Login Required</h2>
+    <p id="authMessage">Mock Test देने के लिए पहले Student Login करें।</p>
     <a href="student-login.html" class="btn">
         Student Login
     </a>
@@ -437,8 +437,7 @@ body{
 
 <div id="testCard" class="card" style="display:none;">
 
-    <h2>📝 Mock Test Center</h2>
-
+    <h2 id="testCenterTitle">📝 Mock Test Center</h2>
     <p>
         पहले आपके अपने course के tests दिखेंगे। जरूरत हो तो All Courses भी देख सकते हैं।
     </p>
@@ -597,7 +596,7 @@ body{
      class="card"
      style="display:none;">
 
-    <h2>📊 Mock Test Result</h2>
+    <h2 id="resultTitle">📊 Mock Test Result</h2>
 
     <div id="result">
     </div>
@@ -605,7 +604,7 @@ body{
     <button
         class="btn"
         onclick="location.reload()">
-        🔄 Back to Mock Tests
+        <span id="backTestText">🔄 Back to Mock Tests</span>
     </button>
 
 </div>
@@ -619,7 +618,7 @@ body{
      class="card"
      style="display:none;">
 
-    <h2>📚 My Mock Test History</h2>
+    <h2 id="historyTitle">📚 My Mock Test History</h2>
 
     <div id="history">
         Loading...
@@ -651,27 +650,22 @@ window.SURYA_DATABASE_API;
 const token =
 sessionStorage.getItem("SURYA_STUDENT_TOKEN");
 
+const examMode =
+new URLSearchParams(window.location.search).get("mode") || "mock";
+
+const isCBT =
+examMode.toLowerCase() === "cbt";
+
+function examAction(mockAction, cbtAction) {
+    return isCBT ? cbtAction : mockAction;
+}
+
 let tests = [];
 let courseTests = [];
 let allCourseTests = [];
 let studentCourse = "";
 let testView = "course";
-
 let currentTest = null;
-
-let questions = [];
-
-let currentIndex = 0;
-
-let answers = [];
-
-let reviewFlags = [];
-
-let visited = [];
-
-let endsAt = 0;
-
-let timerHandle = null;
 
 let submitLocked = false;
 
@@ -737,12 +731,36 @@ async function api(body){
 
 }
 
+function applyExamModeUI() {
+    if (!isCBT) return;
 
+    document.title =
+        "CBT Examination | Surya Computer Of Education Center";
+
+    document.getElementById("authTitle").textContent =
+        "🔐 Student Login Required";
+
+    document.getElementById("authMessage").textContent =
+        "CBT Examination देने के लिए पहले Student Login करें।";
+
+    document.getElementById("testCenterTitle").textContent =
+        "🖥️ CBT Examination";
+
+    document.getElementById("resultTitle").textContent =
+        "📊 CBT Examination Result";
+
+    document.getElementById("backTestText").textContent =
+        "🔄 Back to CBT Examination";
+
+    document.getElementById("historyTitle").textContent =
+        "📚 My CBT Examination History";
+}
 /* =====================================================
    INIT
 ===================================================== */
 
 async function init(){
+    applyExamModeUI();
 
     if(!token){
 
@@ -777,7 +795,7 @@ async function loadTests(){
             await api({
 
                 action:
-                "publishedMockTests"
+                examAction("publishedMockTests","publishedCBTExams")
 
             });
 
@@ -901,7 +919,7 @@ async function startTestById(testId){
             await api({
 
                 action:
-                "publishedMockQuestions",
+examAction("publishedMockQuestions","publishedCBTQuestions"),
 
                 testId:
                 test["Test ID"]
@@ -1443,7 +1461,7 @@ async function submitExam(auto){
             await api({
 
                 action:
-                "submitMockTest",
+examAction("submitMockTest","submitCBTExam"),
 
                 testId:
                 currentTest["Test ID"],
