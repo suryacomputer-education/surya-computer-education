@@ -7,3 +7,4 @@ node_modules/
 google-apps-script/
 *.gs
 *.gs.zip-version
+ll aapt2*
