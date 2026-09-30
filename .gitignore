@@ -1,5 +1,7 @@
-google-apps-script/
+*.zip
 *.tar.gz
-1/
-problem/
-ll aapt2 aidl android-tools apksigner d8 -y
+BACKUP_*
+*.backup*
+*.before*
+node_modules/
+google-apps-script/

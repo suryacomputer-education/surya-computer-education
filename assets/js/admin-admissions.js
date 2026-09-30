@@ -728,7 +728,7 @@ async function loadPrivateStudentPhoto(
 
         if (!adminToken) {
             const pc=card.querySelector(".student-photo-container");
-            if(pc) pc.innerHTML="<img src=\""+photoUrl.replace(/\"/g,"&quot;")+"\" alt=\"Student Photo\" style=\"width:100%;height:100%;object-fit:cover;border-radius:50%;\"><a target=\"_blank\" rel=\"noopener\" href=\""+photoUrl.replace(/\"/g,"&quot;")+"\">Open original</a>";
+            if(pc) pc.innerHTML="<img src=\""+photoUrl.replace(/\"/g,"&quot;")+"\" alt=\"Student Photo\" style=\"display:block;width:100%;height:100%;object-fit:cover;border-radius:0;margin:0;padding:0;box-sizing:border-box;\">";
             return;
         }
 
@@ -763,7 +763,7 @@ async function loadPrivateStudentPhoto(
 
         if (!result.success || !result.data) {
             const photoContainer=card.querySelector(".student-photo-container");
-            if(photoContainer) photoContainer.innerHTML="<img src=\""+photoUrl.replace(/\"/g,"&quot;")+"\" alt=\"Student Photo\" style=\"width:100%;height:100%;object-fit:cover;border-radius:50%;\"><a target=\"_blank\" rel=\"noopener\" href=\""+photoUrl.replace(/\"/g,"&quot;")+"\">Open</a>";
+            if(photoContainer) photoContainer.innerHTML="<img src=\""+photoUrl.replace(/\"/g,"&quot;")+"\" alt=\"Student Photo\" style=\"display:block;width:100%;height:100%;object-fit:cover;border-radius:0;margin:0;padding:0;box-sizing:border-box;\">";
             return;
         }
 
