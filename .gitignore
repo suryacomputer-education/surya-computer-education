@@ -5,3 +5,5 @@ BACKUP_*
 *.before*
 node_modules/
 google-apps-script/
+*.gs
+*.gs.zip-version
