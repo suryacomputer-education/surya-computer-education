@@ -26,6 +26,7 @@
 <div id="googleBtn" style="display:flex;justify-content:center;min-height:44px"></div>
 <div id="googleMsg" class="library-status" style="text-align:center"></div>
 <a class="forgot-link" id="forgotToggle">Forgot Password?</a>
+<a class="forgot-link" href="#" onclick="SuryaGoogleReset.open();return false;">🔑 Gmail (Google) से Password Reset</a>
 <div id="status" class="library-status"></div>
 
 <div id="forgotPanel" class="forgot-panel">
@@ -33,6 +34,7 @@
   <div id="stepRequest" class="forgot-step active">
     <input id="forgotId" placeholder="Library ID (e.g. LIB-000001)">
     <button class="library-btn" id="btnSendCode" type="button">Send Reset Code</button>
+    <button class="library-btn" type="button" onclick="SuryaGoogleReset.open()" style="background:#fff;color:#1f4f8f;border:1px solid #1f4f8f;margin-top:8px">G Gmail से Reset करें</button>
     <span class="back-link" id="cancelForgot1">Cancel</span>
     <div id="forgotStatus1" class="library-status"></div>
   </div>

@@ -2,18 +2,21 @@
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Library Dashboard | Surya Computer</title><link rel="stylesheet" href="assets/css/style.css"><script src="assets/js/backend-config.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 .library-wrap{max-width:1100px;margin:34px auto;padding:20px}.library-hero{padding:34px;border-radius:20px;background:var(--card-bg,#fff);box-shadow:0 8px 28px rgba(0,0,0,.08);text-align:center}.library-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:24px}.library-card{padding:22px;border-radius:16px;background:var(--card-bg,#fff);box-shadow:0 6px 22px rgba(0,0,0,.08)}.library-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:20px}.library-btn{display:inline-block;padding:12px 18px;border-radius:10px;text-decoration:none;background:#1f4f8f;color:#fff}.library-btn.alt{background:transparent;color:inherit;border:1px solid currentColor}.library-form{max-width:700px;margin:auto;display:grid;gap:12px}.library-form input,.library-form textarea,.library-form select{padding:12px;border-radius:10px;border:1px solid #ccc;width:100%;box-sizing:border-box}.library-status{margin-top:14px;padding:12px;border-radius:10px}.library-table{width:100%;border-collapse:collapse}.library-table th,.library-table td{padding:10px;border-bottom:1px solid #ddd;text-align:left}.lock{opacity:.7}
+.tile{display:block;text-decoration:none;color:inherit;text-align:center;transition:transform .15s}.tile:hover{transform:translateY(-3px)}.tile-ico{font-size:38px}.tile h3{margin:8px 0 4px}.tile-n{opacity:.7;font-size:.95rem}
 </style>
 <script src="assets/js/surya-format.js"></script>
 <link rel="stylesheet" href="assets/css/project-ui.css">
 <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
 <link rel="icon" href="assets/images/favicon.ico" sizes="any">
 </head>
-<body><header class="site-header"><img src="assets/images/logo.png" alt="Logo" class="logo"><div class="title"><h1>SURYA DIGITAL LIBRARY</h1><p>Library Student Dashboard</p></div></header><nav class="navbar"><a href="digital-library.html">Library Home</a><a href="#" id="logout">Logout</a></nav><main class="library-wrap"><section class="library-card"><h2 id="welcome">Loading...</h2><p id="account"></p><div id="feeBox" style="margin-top:16px"></div></section><section class="library-grid"><article class="library-card"><h3>📘 Books / PDF</h3><div id="pdf">Loading...</div></article><article class="library-card"><h3>📝 Mock Tests</h3><div id="mock">Loading...</div></article><article class="library-card">
-  <h3>🖥️ CBT Examination</h3>
-  <div id="cbt">Loading...</div>
-</article><article class="library-card"><h3>🎥 Recorded Classes</h3><div id="recorded">Loading...</div></article><article class="library-card"><h3>🔴 Live Classes</h3><div id="live">Loading...</div></article></section></main>
-<script>const API=window.SURYA_DATABASE_API,T=sessionStorage.getItem('SURYA_LIBRARY_TOKEN');if(!T)location.href='library-login.html';const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));const render=(arr,kind)=>arr.length?arr.map(x=>{const paid=String(x.accessMode||'FREE').toUpperCase()==='PAID';const unlocked=String(x.accessState||'').toUpperCase()==='UNLOCKED';const url=x.ViewURL||x['Video URL']||x['Join URL']||'';return '<div class="library-card '+(paid&&!unlocked?'lock':'')+'" style="margin:8px 0;padding:14px"><b>'+esc(x.Title)+'</b><div>'+esc(x.Subject||x.Description||'')+'</div><div style="margin-top:8px">'+(paid?(unlocked?'🔓 UNLOCKED — Open':'🔒 PAID — Payment/verification required.'):'🟢 FREE — Open')+'</div>'+((kind==='mock')?'<div style="margin-top:8px"><a class="library-btn" href="library-mock-test.html?testId='+encodeURIComponent(String(x['Test ID']||''))+'">📝 Open Mock Test</a></div>':((!paid||unlocked)&&url?'<div style="margin-top:8px"><a class="library-btn" target="_blank" rel="noopener" href="'+esc(url)+'">📖 Open / Read</a></div>':''))+'</div>';}).join(''):'<p>No published content yet.</p>';
-async function post(body){
+<body><header class="site-header"><img src="assets/images/logo.png" alt="Logo" class="logo"><div class="title"><h1>SURYA DIGITAL LIBRARY</h1><p>Library Student Dashboard</p></div></header><nav class="navbar"><a href="digital-library.html">Library Home</a><a href="#" id="logout">Logout</a></nav><main class="library-wrap"><section class="library-card"><h2 id="welcome">Loading...</h2><p id="account"></p><div id="feeBox" style="margin-top:16px"></div></section><section class="library-grid">
+<a class="library-card tile" href="library-section.html?s=pdf"><div class="tile-ico">📘</div><h3>Books / PDF</h3><div id="n_pdf" class="tile-n">…</div></a>
+<a class="library-card tile" href="library-section.html?s=mock"><div class="tile-ico">📝</div><h3>Mock Tests</h3><div id="n_mock" class="tile-n">…</div></a>
+<a class="library-card tile" href="library-section.html?s=cbt"><div class="tile-ico">🖥️</div><h3>CBT Examination</h3><div id="n_cbt" class="tile-n">…</div></a>
+<a class="library-card tile" href="library-section.html?s=recorded"><div class="tile-ico">🎥</div><h3>Recorded Classes</h3><div id="n_recorded" class="tile-n">…</div></a>
+<a class="library-card tile" href="library-section.html?s=live"><div class="tile-ico">🔴</div><h3>Live Classes</h3><div id="n_live" class="tile-n">…</div></a>
+</section></main>
+<script>const API=window.SURYA_DATABASE_API,T=sessionStorage.getItem('SURYA_LIBRARY_TOKEN');if(!T)location.href='library-login.html';const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));async function post(body){
  const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});
  if(!r.ok)throw new Error('Network error: '+r.statusText);
  return r.json();
@@ -81,10 +84,7 @@ function feeBox(student){
     </div>
    </div>
    ${payUI}
-   <div style="margin-top:16px;padding-top:16px;border-top:1px solid #eee">
-    <b>💳 Payment History</b>
-    ${payTable}
-   </div>
+   <details style="margin-top:14px;padding-top:12px;border-top:1px solid #eee"><summary style="cursor:pointer;font-weight:700">💳 Payment History (${payments.length})</summary>${payTable}</details>
   </div>
  `;
 }
@@ -173,65 +173,27 @@ async function pollMembershipPayment(refId){
   }
  }
 }
-async function loadCBT(){
-  try{
-    const r=await post({
-      action:'libraryPublishedCBTExams',
-      token:T
-    });
-
-    if(!r.success){
-      throw new Error(r.message||'CBT exams load failed.');
-    }
-
-    const exams=Array.isArray(r)?r:(r.tests||r.exams||[]);
-
-    document.getElementById('cbt').innerHTML=exams.length
-      ? exams.map(x=>{
-          const paid=String(x.accessMode||'FREE').toUpperCase()==='PAID';
-          const unlocked=String(x.accessState||'').toUpperCase()==='UNLOCKED';
-
-          return '<div class="library-card '+(paid&&!unlocked?'lock':'')+'" style="margin:8px 0;padding:14px">'
-            +'<b>'+esc(x.Title)+'</b>'
-            +'<div>'+esc(x.Course||'')+' — '+esc(x['Subject Name']||'')+'</div>'
-            +'<div style="margin-top:8px">'
-            +(paid
-              ? (unlocked?'🔓 UNLOCKED — Ready for CBT':'🔒 PAID — Payment/verification required.')
-              : '🟢 FREE — Available')
-            +'</div>'
-            +((!paid||unlocked)
-              ? '<div style="margin-top:8px"><a class="library-btn" href="library-cbt.html?testId='+encodeURIComponent(String(x['Test ID']||''))+'">🖥️ Start CBT Examination</a></div>'
-              : '')
-            +'</div>';
-        }).join('')
-      : '<p>No published library CBT examinations.</p>';
-
-  }catch(e){
-    document.getElementById('cbt').innerHTML=
-      '<p class="lock">❌ '+esc(e.message)+'</p>';
-  }
-}
 async function load(){
- try{
-  const r=await post({action:'libraryContent',token:T});
-  if(!r.success)throw new Error(r.message||'Session expired');
-  
-  const student=r.student||{};
-  document.getElementById('welcome').textContent='Welcome, '+(student.name||'Library Student');
-  document.getElementById('account').textContent='Library ID: '+esc(student.libraryId||'—')+' • Membership: '+esc(student.membershipPlan||'Standard');
-  document.getElementById('feeBox').innerHTML=feeBox(student);
-  
-  document.getElementById('pdf').innerHTML=render(r.pdfs||[]);
-  document.getElementById('mock').innerHTML=render(r.mock||[],'mock');
-  document.getElementById('recorded').innerHTML=render(r.recorded||[]);
-  document.getElementById('live').innerHTML=render(r.live||[]);
-  
-  await loadCBT();
- }catch(e){
-  console.error('Load error:',e);
+ let r;
+ try{ r=await post({action:'libraryContent',token:T}); }
+ catch(e){ document.getElementById('welcome').textContent='❌ Network problem — page refresh karein'; return; }
+ if(!r||!r.success){
   sessionStorage.removeItem('SURYA_LIBRARY_TOKEN');
-  document.getElementById('welcome').textContent='❌ '+esc(e.message)+' — Please login again';
+  document.getElementById('welcome').textContent='❌ '+((r&&r.message)||'Session expired')+' — Please login again';
+  setTimeout(()=>{location.href='library-login.html';},1500);
+  return;
  }
+ const student=r.student||{};
+ document.getElementById('welcome').textContent='Welcome, '+(student.name||'Library Student');
+ document.getElementById('account').textContent='Library ID: '+(student.libraryId||'—')+' • Membership: '+(student.membershipPlan||'Standard');
+ document.getElementById('feeBox').innerHTML=feeBox(student);
+ const counts={pdf:(r.pdfs||[]).length,mock:(r.mock||[]).length,recorded:(r.recorded||[]).length,live:(r.live||[]).length};
+ Object.keys(counts).forEach(k=>{document.getElementById('n_'+k).textContent=counts[k]+(counts[k]===1?' item':' items');});
+ try{
+  const c=await post({action:'libraryPublishedCBTExams',token:T});
+  const arr=Array.isArray(c)?c:(c.tests||c.exams||[]);
+  document.getElementById('n_cbt').textContent=arr.length+(arr.length===1?' exam':' exams');
+ }catch(e){document.getElementById('n_cbt').textContent='Open';}
 }
 
 load();

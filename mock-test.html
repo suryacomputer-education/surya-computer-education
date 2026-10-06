@@ -669,6 +669,15 @@ let currentTest = null;
 
 let submitLocked = false;
 
+/* exam state (pehle declare nahi tha -> "questions is not defined") */
+let questions = [];
+let currentIndex = 0;
+let answers = [];
+let reviewFlags = [];
+let visited = [];
+let endsAt = 0;
+let timerHandle = null;
+
 
 /* =====================================================
    ESCAPE
@@ -715,8 +724,15 @@ async function api(body){
 
         });
 
-    const data =
-        await response.json();
+    const raw = await response.text();
+    let data;
+    try{
+        data = JSON.parse(raw);
+    }catch(parseError){
+        throw new Error(
+            "Server अभी busy है, थोड़ी देर बाद दोबारा try करें."
+        );
+    }
 
     if(!data.success){
 
@@ -885,6 +901,43 @@ function renderTests(){
    START TEST
 ===================================================== */
 
+function renderSimpleMock(){
+    const layout = document.querySelector(".cbt-layout");
+    layout.style.display = "none";
+    let box = document.getElementById("simpleBox");
+    if(!box){
+        box = document.createElement("div");
+        box.id = "simpleBox";
+        layout.parentNode.insertBefore(box, layout.nextSibling);
+    }
+    box.style.display = "block";
+    box.innerHTML =
+        questions.map((q,i)=>`
+            <div class="card" style="margin:12px 0">
+                <b>Q${i+1}. ${esc(q["Question"])}</b>
+                ${["A","B","C","D"].map(l=>`
+                    <label style="display:flex;gap:8px;align-items:flex-start;padding:10px;margin:8px 0;border:1px solid #d0d5dd;border-radius:8px;cursor:pointer">
+                        <input type="radio" name="sq${i}" value="${l}" data-i="${i}">
+                        <span><b>${l}.</b> ${esc(q["Option "+l])}</span>
+                    </label>`).join("")}
+            </div>`).join("") +
+        `<div class="card"><button id="simpleSubmit" type="button"
+            style="padding:12px 18px;border:0;border-radius:8px;background:#1565c0;color:#fff;font-size:16px;cursor:pointer">
+            ✅ Submit Test</button></div>`;
+    box.querySelectorAll('input[type="radio"]').forEach(inp=>{
+        inp.addEventListener("click",function(){
+            const i = Number(this.dataset.i);
+            if(answers[i] === this.value){
+                this.checked = false;
+                answers[i] = "";
+            }else{
+                answers[i] = this.value;
+            }
+        });
+    });
+    document.getElementById("simpleSubmit").onclick = () => submitExam(false);
+}
+
 async function startTestById(testId){
 
     const test =
@@ -993,9 +1046,16 @@ examAction("publishedMockQuestions","publishedCBTQuestions"),
             );
 
 
-        renderPalette();
-
-        renderQuestion();
+        if(isCBT){
+            const sb=document.getElementById("simpleBox");
+            if(sb) sb.style.display="none";
+            const lay=document.querySelector(".cbt-layout");
+            if(lay) lay.style.display="grid";
+            renderPalette();
+            renderQuestion();
+        }else{
+            renderSimpleMock();
+        }
 
         updateTimer();
 
@@ -1605,7 +1665,7 @@ async function loadHistory(){
             data.attempts || [];
 
 
-        history.innerHTML =
+        document.getElementById("history").innerHTML =
             arr.length
 
             ?
@@ -1656,7 +1716,7 @@ async function loadHistory(){
 
     }catch(error){
 
-        history.textContent =
+        document.getElementById("history").textContent =
             "Unable to load history.";
 
     }
