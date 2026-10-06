@@ -22,6 +22,9 @@
 <input id="pw" type="password" placeholder="Password" required>
 <button class="library-btn" type="submit">Login</button>
 </form>
+<div style="text-align:center;margin:14px 0 4px;opacity:.7">— या —</div>
+<div id="googleBtn" style="display:flex;justify-content:center;min-height:44px"></div>
+<div id="googleMsg" class="library-status" style="text-align:center"></div>
 <a class="forgot-link" id="forgotToggle">Forgot Password?</a>
 <div id="status" class="library-status"></div>
 
@@ -121,4 +124,6 @@ document.getElementById('btnResetPw').addEventListener('click',async ()=>{
 });
 </script>
 <script src="assets/js/project-ui.js"></script>
+<script src="assets/js/google-login.js"></script>
+<script>SuryaGoogleLogin({mode:'library',buttonId:'googleBtn',messageId:'googleMsg'});</script>
 </body></html>
